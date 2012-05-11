@@ -75,6 +75,12 @@ class Game():
         self._dots = []
         self._opts = []
         yoffset = int(self._space / 2.)
+
+        self._line = Sprite(
+            self._sprites, 0,
+            int(3 * (self._dot_size + self._space) + yoffset / 2.),
+            self._line(vertical=False))
+
         for y in range(3):
             for x in range(6):
                 xoffset = int((self._width - 6 * self._dot_size - \
@@ -98,15 +104,8 @@ class Game():
             self._opts[-1].set_label_attributes(72)
             self._opts[-1].hide()
 
-        self._line = Sprite(
-            self._sprites, 0,
-            int(3 * (self._dot_size + self._space) + yoffset / 2.),
-            self._line(vertical=False))
-
     def _all_clear(self):
         ''' Things to reinitialize when starting up a new game. '''
-        _logger.debug('all clear')
-
         if self._timeout_id is not None:
             gobject.source_remove(self._timeout_id)
 
@@ -167,7 +166,6 @@ class Game():
 
     def _new_game(self):
         ''' Select pictures at random '''
-        _logger.debug('new game')
         # Choose images at random
         for i in range(self._level):
             if self._dots[i].type == -1:
@@ -175,7 +173,6 @@ class Game():
                 while self._image_in_dots(n):
                     n = int(uniform(0, len(self._PATHS)))
                 self._dots[i].type = n
-            _logger.debug(self._dots[i].type)
             self._dots[i].set_shape(self._new_dot_surface(
                     image=self._dots[i].type))
             self._dots[i].set_layer(100)
@@ -197,7 +194,7 @@ class Game():
         self._timeout_id = gobject.timeout_add(3000, self._ask_the_question)
 
     def _ask_the_question(self):
-
+        ''' Each game has a challenge '''
         self._timeout_id = None
         # Hide the dots
         for i in range(self._level):
@@ -205,7 +202,6 @@ class Game():
 
         if self._game == 0:
             self._set_label(_('Which image was repeated?'))
-
             # Show the possible solutions
             for i in range(3):
                 n = int(uniform(0, len(self._PATHS)))
@@ -227,7 +223,7 @@ class Game():
                 self._opts[i].set_layer(100)
         elif self._game == 1:
             self._set_label(_('Which image was not shown?'))
-
+            # Show the possible solutions
             for i in range(3):
                 n = int(uniform(0, len(self._PATHS)))
                 while(not self._image_in_dots(n) or \
@@ -251,7 +247,8 @@ class Game():
         self._game = game
         for i, dot in enumerate(dot_list):
             self._dots[i].type = dot
-            self._dots[i].hide()
+            if dot == -1:
+                self._dots[i].hide()
         self._new_game()
 
     def save_game(self):
