@@ -133,12 +133,15 @@ class RecallActivity(activity.Activity):
 
     def write_file(self, file_path):
         """ Write the grid status to the Journal """
-        dot_list = self._game.save_game()
+        dot_list, correct, level, game = self._game.save_game()
         self.metadata['dotlist'] = ''
         for dot in dot_list:
             self.metadata['dotlist'] += str(dot)
             if dot_list.index(dot) < len(dot_list) - 1:
                 self.metadata['dotlist'] += ' '
+        self.metadata['correct'] = str(correct)
+        self.metadata['level'] = str(level)
+        self.metadata['game'] = str(game)
 
     def _restore(self):
         """ Restore the game state from metadata """
@@ -146,7 +149,19 @@ class RecallActivity(activity.Activity):
         dots = self.metadata['dotlist'].split()
         for dot in dots:
             dot_list.append(int(dot))
-        self._game.restore_game(dot_list)
+        if 'correct' in self.metadata:
+            correct = int(self.metadata['correct'])
+        else:
+            correct = 0
+        if 'level' in self.metadata:
+            level = int(self.metadata['level'])
+        else:
+            level = 0
+        if 'game' in self.metadata:
+            game = int(self.metadata['game'])
+        else:
+            game = 0
+        self._game.restore_game(dot_list, correct, level, game)
 
     # Collaboration-related methods
 
@@ -247,8 +262,8 @@ params=%r state=%d' % (id, initiator, type, service, params, state))
 
     def _receive_new_game(self, payload):
         ''' Sharer can start a new game. '''
-        dot_list = json_load(payload)
-        self._game.restore_game(dot_list)
+        dot_list, correct, level, game = json_load(payload)
+        self._game.restore_game(dot_list, correct, level, game)
 
     def send_dot_click(self, dot, color):
         ''' Send a dot click to all the players '''
