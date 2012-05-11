@@ -116,6 +116,7 @@ class Game():
         self._set_label('')
         for i in range(3):
             self._opts[i].hide()
+            self._opts[i].type = -1
             self._opts[i].set_label('')
 
         for dot in self._dots:
@@ -150,6 +151,12 @@ class Game():
     def _image_in_dots(self, n):
         for i in range(self._level):
             if self._dots[i].type == n:
+                return True
+        return False
+
+    def _image_in_opts(self, n):
+        for i in range(3):
+            if self._opts[i].type == n:
                 return True
         return False
 
@@ -197,11 +204,13 @@ class Game():
             for i in range(3):
                 n = int(uniform(0, len(self._PATHS)))
                 if self._level == 3:
-                    while(n == self._dots[self._repeat].type):
+                    while(n == self._dots[self._repeat].type or \
+                          self._image_in_opts(n)):
                         n = int(uniform(0, len(self._PATHS)))
                 else:
                     while(n == self._dots[self._repeat].type or \
-                          not self._image_in_dots(n)):
+                          not self._image_in_dots(n) or \
+                          self._image_in_opts(n)):
                         n = int(uniform(0, len(self._PATHS)))
                 self._opts[i].type = n
             self._answer = int(uniform(0, 3))
