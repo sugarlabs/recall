@@ -105,6 +105,8 @@ class Game():
 
     def _all_clear(self):
         ''' Things to reinitialize when starting up a new game. '''
+        _logger.debug('all clear')
+
         if self._timeout_id is not None:
             gobject.source_remove(self._timeout_id)
 
@@ -112,6 +114,10 @@ class Game():
         if self._correct > 3 and self._level < len(self._dots):
             self._level += 3
             self._correct = 0
+        elif self._correct > 3 and self._game == 0:
+            self._level = 3
+            self._correct = 0
+            self._game += 1
 
         self._set_label('')
         for i in range(3):
@@ -129,7 +135,6 @@ class Game():
             else:
                 dot.hide()
 
-        # self._stop_timer()
         self._dance_counter = 0
         self._dance_step()
 
@@ -162,6 +167,7 @@ class Game():
 
     def _new_game(self):
         ''' Select pictures at random '''
+        _logger.debug('new game')
         # Choose images at random
         for i in range(self._level):
             if self._dots[i].type == -1:
@@ -169,10 +175,11 @@ class Game():
                 while self._image_in_dots(n):
                     n = int(uniform(0, len(self._PATHS)))
                 self._dots[i].type = n
-                _logger.debug(self._dots[i].type)
-                self._dots[i].set_shape(self._new_dot_surface(
-                        image=self._dots[i].type))
-                self._dots[i].set_label('')
+            _logger.debug(self._dots[i].type)
+            self._dots[i].set_shape(self._new_dot_surface(
+                    image=self._dots[i].type))
+            self._dots[i].set_layer(100)
+            self._dots[i].set_label('')
 
         if self._game == 0:
             # Repeat at least one of the images
@@ -188,7 +195,6 @@ class Game():
             self._parent.send_new_game()
 
         self._timeout_id = gobject.timeout_add(3000, self._ask_the_question)
-        # self._start_timer()
 
     def _ask_the_question(self):
 
@@ -219,36 +225,45 @@ class Game():
                 self._opts[i].set_shape(self._new_dot_surface(
                         image=self._opts[i].type))
                 self._opts[i].set_layer(100)
+        elif self._game == 1:
+            self._set_label(_('Which image was not shown?'))
 
-    def restore_game(self, dot_list):
+            for i in range(3):
+                n = int(uniform(0, len(self._PATHS)))
+                while(not self._image_in_dots(n) or \
+                      self._image_in_opts(n)):
+                    n = int(uniform(0, len(self._PATHS)))
+                self._opts[i].type = n
+            self._answer = int(uniform(0, 3))
+            n = int(uniform(0, len(self._PATHS)))
+            while(self._image_in_dots(n)):
+                n = int(uniform(0, len(self._PATHS)))
+            self._opts[self._answer].type = n
+            for i in range(3):
+                self._opts[i].set_shape(self._new_dot_surface(
+                        image=self._opts[i].type))
+                self._opts[i].set_layer(100)
+
+    def restore_game(self, dot_list, correct=0, level=3, game=0):
         ''' Restore a game from the Journal or share '''
+        self._correct = correct
+        self._level = level
+        self._game = game
         for i, dot in enumerate(dot_list):
             self._dots[i].type = dot
-            if i < self._level:
-                self._dots[i].set_shape(self._new_dot_surface(
-                        image=self._dots[i].type))
-            else:
-                self._dots[i].hide()
+            self._dots[i].hide()
+        self._new_game()
 
     def save_game(self):
-        ''' Return dot list for saving to Journal or
-        sharing '''
+        ''' Return dot list for saving to Journal or sharing '''
         dot_list = []
         for dot in self._dots:
             dot_list.append(dot.type)
-        return dot_list
+        return dot_list, self._correct, self._level, self._game
 
     def _set_label(self, string):
         ''' Set the label in the toolbar or the window frame. '''
         self._parent.status.set_label(string)
-
-    def _count(self, count_type, spr):
-        ''' Count the number of surrounding dots of type count_type '''
-        counter = 0
-        for dot in self._neighbors(spr):
-            if dot.type in count_type:
-                counter += 1
-        return counter
 
     def _button_press_cb(self, win, event):
         if self._timeout_id is not None:
@@ -262,7 +277,7 @@ class Game():
         if spr == None:
             return
 
-        if self._game == 0:
+        if self._game == 0 or self._game == 1:
             for i in range(3):
                 if self._opts[i] == spr:
                     break
@@ -293,30 +308,6 @@ class Game():
     def set_sharing(self, share=True):
         _logger.debug('enabling sharing')
         self.we_are_sharing = share
-
-    def _counter(self):
-        ''' Display of seconds since start_time. '''
-        self._set_label(str(
-                int(gobject.get_current_time() - self._start_time)))
-        self._timeout_id = gobject.timeout_add(1000, self._counter)
-
-    def _start_timer(self):
-        ''' Start/reset the timer '''
-        self._start_time = gobject.get_current_time()
-        self._timeout_id = None
-        self._counter()
-
-    def _stop_timer(self):
-        if self._timeout_id is not None:
-            gobject.source_remove(self._timeout_id)
-
-    def _grid_to_dot(self, pos):
-        ''' calculate the dot index from a column and row in the grid '''
-        return pos[0] + pos[1] * 3
-
-    def _dot_to_grid(self, dot):
-        ''' calculate the grid column and row for a dot '''
-        return [dot % 3, int(dot / 3)]
 
     def _expose_cb(self, win, event):
         self.do_expose_event(event)
