@@ -203,6 +203,14 @@ class Game():
         self._timeout_id = gobject.timeout_add(
             1000, self._load_image_from_list)
 
+    def _find_repeat(self):
+        ''' Find an image that repeats '''
+        for i in range(self._level):
+            for j in range(self._level - i - 1):
+                if self._dots[i].type == self._dots[j].type:
+                    return i
+        return None
+
     def _new_game(self, restore=False):
         ''' Load game images and then ask a question... '''
         if self._game in [0, 1]:
@@ -228,7 +236,10 @@ class Game():
                         image=self._dots[n].type))
                 self._dots[self._repeat].type = self._dots[n].type
             else:  # Find repeated image, as that is the answer
-                self._repeat = 0  # TODO: fix
+                self._repeat = self._find_repeat()
+                if self._repeat is None:
+                    _logger.debug('could not find repeat')
+                    self._repeat = 0
 
         if self.we_are_sharing:
             _logger.debug('sending a new game')
@@ -413,6 +424,8 @@ class Game():
         ''' generate a dot of a color color '''
         self._dot_cache = {}
         if image is not None:
+            if image in self._dot_cache:
+                return self._dot_cache[image]
             pixbuf = gtk.gdk.pixbuf_new_from_file_at_size(
                 os.path.join(self._path, self._PATHS[image]),
                 self._svg_width, self._svg_height)
@@ -439,6 +452,8 @@ class Game():
         context.fill()
         if image is None:
             self._dot_cache[color] = surface
+        else:
+            self._dot_cache[image] = surface
         return surface
 
     def _line(self, vertical=True):
