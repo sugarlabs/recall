@@ -10,6 +10,12 @@
 # along with this library; if not, write to the Free Software
 # Foundation, 51 Franklin Street, Suite 500 Boston, MA 02110-1335 USA
 
+'''
+Three different games:
+(0) find the repeated image
+(1) find the image not shown in the collection
+(2) recall the image shown previously
+'''
 
 import gtk
 import gobject
@@ -19,6 +25,7 @@ import glob
 from random import uniform
 
 from gettext import gettext as _
+from gettext import ngettext
 
 import logging
 _logger = logging.getLogger('search-activity')
@@ -64,7 +71,7 @@ class Game():
         self._timeout_id = None
 
         self._level = 3
-        self._game = 0
+        self._game = 2
         self._correct = 0
 
         # Find the image files
@@ -126,7 +133,7 @@ class Game():
 
         for dot in self._dots:
             dot.type = -1
-            if self._dots.index(dot) < self._level:
+            if self._game == 2 or self._dots.index(dot) < self._level:
                 dot.set_shape(self._new_dot_surface(
                             self._colors[abs(dot.type)]))
                 dot.set_label('?')
@@ -139,9 +146,14 @@ class Game():
 
     def _dance_step(self):
         ''' Short animation before loading new game '''
-        for i in range(self._level):
-            self._dots[i].set_shape(self._new_dot_surface(
-                    self._colors[int(uniform(0, 3))]))
+        if self._game == 2:
+            for i in range(len(self._dots)):
+                self._dots[i].set_shape(self._new_dot_surface(
+                        self._colors[int(uniform(0, 3))]))
+        else:
+            for i in range(self._level):
+                self._dots[i].set_shape(self._new_dot_surface(
+                        self._colors[int(uniform(0, 3))]))
         self._dance_counter += 1
         if self._dance_counter < 10:
             self._timeout_id = gobject.timeout_add(500, self._dance_step)
@@ -164,9 +176,8 @@ class Game():
                 return True
         return False
 
-    def _new_game(self):
-        ''' Select pictures at random '''
-        # Choose images at random
+    def _choose_random_images(self):
+        ''' Choose images at random '''
         for i in range(self._level):
             if self._dots[i].type == -1:
                 n = int(uniform(0, len(self._PATHS)))
@@ -178,30 +189,68 @@ class Game():
             self._dots[i].set_layer(100)
             self._dots[i].set_label('')
 
+    def _load_image_from_list(self):
+        if self._recall_counter == len(self._recall_list):
+            self._timeout_id = gobject.timeout_add(
+                1000, self._ask_the_question)
+            return
+        for dot in self._dots:
+            dot.type = self._recall_list[self._recall_counter]
+            dot.set_shape(self._new_dot_surface(image=dot.type))
+            dot.set_layer(100)
+            dot.set_label('')
+        self._recall_counter += 1
+        self._timeout_id = gobject.timeout_add(
+            1000, self._load_image_from_list)
+
+    def _new_game(self, restore=False):
+        ''' Load game images and then ask a question... '''
+        if self._game in [0, 1]:
+            self._choose_random_images()
+        else:  # game 2
+            # generate a random list
+            self._recall_list = []
+            for i in range(12):
+                n = int(uniform(0, len(self._PATHS)))
+                while n in self._recall_list:
+                    n = int(uniform(0, len(self._PATHS)))
+                self._recall_list.append(n)
+            self._recall_counter = 0
+            self._load_image_from_list()
+
         if self._game == 0:
-            # Repeat at least one of the images
-            self._repeat = int(uniform(0, self._level))
-            n = (self._repeat + int(uniform(1, self._level))) % self._level
-            _logger.debug('repeat=%d, n=%d' % (self._repeat, n))
-            self._dots[self._repeat].set_shape(self._new_dot_surface(
-                    image=self._dots[n].type))
-            self._dots[self._repeat].type = self._dots[n].type
+            if not restore:
+                # Repeat at least one of the images
+                self._repeat = int(uniform(0, self._level))
+                n = (self._repeat + int(uniform(1, self._level))) % self._level
+                _logger.debug('repeat=%d, n=%d' % (self._repeat, n))
+                self._dots[self._repeat].set_shape(self._new_dot_surface(
+                        image=self._dots[n].type))
+                self._dots[self._repeat].type = self._dots[n].type
+            else:  # Find repeated image, as that is the answer
+                self._repeat = 0  # TODO: fix
 
         if self.we_are_sharing:
             _logger.debug('sending a new game')
             self._parent.send_new_game()
 
-        self._timeout_id = gobject.timeout_add(3000, self._ask_the_question)
+        if self._game < 2:
+            self._timeout_id = gobject.timeout_add(
+                3000, self._ask_the_question)
 
     def _ask_the_question(self):
         ''' Each game has a challenge '''
         self._timeout_id = None
         # Hide the dots
-        for i in range(self._level):
-            self._dots[i].hide()
+        if self._game == 2:
+            for dot in self._dots:
+                dot.hide()
+        else:
+            for i in range(self._level):
+                self._dots[i].hide()
 
         if self._game == 0:
-            self._set_label(_('Which image was repeated?'))
+            self._set_label(_('Recall which image was repeated.'))
             # Show the possible solutions
             for i in range(3):
                 n = int(uniform(0, len(self._PATHS)))
@@ -222,7 +271,7 @@ class Game():
                         image=self._opts[i].type))
                 self._opts[i].set_layer(100)
         elif self._game == 1:
-            self._set_label(_('Which image was not shown?'))
+            self._set_label(_('Recall which image was not shown.'))
             # Show the possible solutions
             for i in range(3):
                 n = int(uniform(0, len(self._PATHS)))
@@ -239,9 +288,29 @@ class Game():
                 self._opts[i].set_shape(self._new_dot_surface(
                         image=self._opts[i].type))
                 self._opts[i].set_layer(100)
+        elif self._game == 2:
+            self._set_label(ngettext(
+                    'Recall which image was displayed %d time ago',
+                    'Recall which image was displayed %d times ago',
+                    (int(self._level / 3))) % \
+                                (int(self._level / 3)))
+            # Show the possible solutions
+            for i in range(3):
+                self._answer = len(self._recall_list) - int(self._level / 3) - 1
+                n = int(uniform(0, len(self._recall_list)))
+                while n == self._answer:
+                    n = int(uniform(0, len(self._recall_list)))
+                self._opts[i].type = n
+            i = int(uniform(0, 3))
+            self._opts[i].type = self._recall_list[self._answer]
+            for i in range(3):
+                self._opts[i].set_shape(self._new_dot_surface(
+                        image=self._opts[i].type))
+                self._opts[i].set_layer(100)
 
     def restore_game(self, dot_list, correct=0, level=3, game=0):
         ''' Restore a game from the Journal or share '''
+        # TODO: Save/restore recall list for game 2
         self._correct = correct
         self._level = level
         self._game = game
@@ -249,7 +318,7 @@ class Game():
             self._dots[i].type = dot
             if dot == -1:
                 self._dots[i].hide()
-        self._new_game()
+        self._new_game(restore=True)
 
     def save_game(self):
         ''' Return dot list for saving to Journal or sharing '''
@@ -274,7 +343,7 @@ class Game():
         if spr == None:
             return
 
-        if self._game == 0 or self._game == 1:
+        if self._game in [0, 1]:
             for i in range(3):
                 if self._opts[i] == spr:
                     break
@@ -286,9 +355,27 @@ class Game():
             else:
                 self._opts[i].set_label('☹')
                 self._correct = 0
+        else:
+            for i in range(3):
+                if self._opts[i] == spr:
+                    break
+            self._opts[i].set_shape(self._new_dot_surface(
+                    color=self._colors[0]))
+            if self._opts[i].type == self._recall_list[self._answer]:
+                self._opts[i].set_label('☻')
+                self._correct += 1
+            else:
+                self._opts[i].set_label('☹')
+                self._correct = 0
 
-        for i in range(self._level):
-            self._dots[i].set_layer(100)
+        if self._game in [0, 1]:
+            for i in range(self._level):
+                self._dots[i].set_layer(100)
+        else:
+            for dot in self._dots:
+                dot.set_shape(self._new_dot_surface(
+                        image=self._recall_list[self._answer]))
+                dot.set_layer(100)
 
         if self._correct == 0:
             self._timeout_id = gobject.timeout_add(5000, self.new_game)
