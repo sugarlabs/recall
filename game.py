@@ -71,7 +71,7 @@ class Game():
         self._timeout_id = None
 
         self._level = 3
-        self._game = 2
+        self._game = 0
         self._correct = 0
 
         # Find the image files
