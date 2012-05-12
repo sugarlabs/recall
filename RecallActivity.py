@@ -132,10 +132,6 @@ class RecallActivity(activity.Activity):
             cb_arg=3, tooltip=_('Play attention game (color symbols).'),
             group=self.radio[0]))
 
-        new_level_button_h = button_factory(
-            'view-refresh', self.toolbar, self._new_level_cb,
-            tooltip=_('Load new images.'))
-
         self.status = label_factory(self.toolbar, '')
 
         if _have_toolbox:
@@ -146,10 +142,6 @@ class RecallActivity(activity.Activity):
             stop_button.props.accelerator = '<Ctrl>q'
             toolbox.toolbar.insert(stop_button, -1)
             stop_button.show()
-
-    def _new_level_cb(self, button):
-        ''' Reload a new level. '''
-        self._game.new_game(game=None)
 
     def _new_game_cb(self, button=None, game=0):
         ''' Reload a new level. '''
