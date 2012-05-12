@@ -76,6 +76,8 @@ class Game():
 
         # Find the image files
         self._PATHS = glob.glob(os.path.join(self._path, 'images', '*.svg'))
+        self._CPATHS = glob.glob(
+            os.path.join(self._path, 'color-images', '*.svg'))
 
         # Generate the sprites we'll need...
         self._sprites = Sprites(self._canvas)
@@ -120,10 +122,6 @@ class Game():
         if self._correct > 3 and self._level < len(self._dots):
             self._level += 3
             self._correct = 0
-        elif self._correct > 3 and self._game == 0:
-            self._level = 3
-            self._correct = 0
-            self._game += 1
 
         self._set_label('')
         for i in range(3):
@@ -160,9 +158,14 @@ class Game():
         else:
             self._new_game()
 
-    def new_game(self):
+    def new_game(self, game=None, restart=True):
         ''' Start a new game. '''
-        self._all_clear()
+        if game is not None:
+            self._game = game
+            self._level = 3
+            self._correct = 0
+        if restart:
+            self._all_clear()
 
     def _image_in_dots(self, n):
         for i in range(self._level):
@@ -178,14 +181,22 @@ class Game():
 
     def _choose_random_images(self):
         ''' Choose images at random '''
+        if self._game == 3:
+            maxi = len(self._CPATHS)
+        else:
+            maxi = len(self._PATHS)
         for i in range(self._level):
             if self._dots[i].type == -1:
-                n = int(uniform(0, len(self._PATHS)))
+                n = int(uniform(0, maxi))
                 while self._image_in_dots(n):
-                    n = int(uniform(0, len(self._PATHS)))
+                    n = int(uniform(0, maxi))
                 self._dots[i].type = n
-            self._dots[i].set_shape(self._new_dot_surface(
-                    image=self._dots[i].type))
+            if self._game == 3:
+                self._dots[i].set_shape(self._new_dot_surface(
+                        color_image=self._dots[i].type))
+            else:
+                self._dots[i].set_shape(self._new_dot_surface(
+                        image=self._dots[i].type))
             self._dots[i].set_layer(100)
             self._dots[i].set_label('')
 
@@ -213,7 +224,7 @@ class Game():
 
     def _new_game(self, restore=False):
         ''' Load game images and then ask a question... '''
-        if self._game in [0, 1]:
+        if self._game in [0, 1, 3]:
             self._choose_random_images()
         else:  # game 2
             # generate a random list
@@ -245,7 +256,7 @@ class Game():
             _logger.debug('sending a new game')
             self._parent.send_new_game()
 
-        if self._game < 2:
+        if self._game in [0, 1, 3]:
             self._timeout_id = gobject.timeout_add(
                 3000, self._ask_the_question)
 
@@ -298,6 +309,24 @@ class Game():
             for i in range(3):
                 self._opts[i].set_shape(self._new_dot_surface(
                         image=self._opts[i].type))
+                self._opts[i].set_layer(100)
+        elif self._game == 3:
+            self._set_label(_('Recall which image was not shown.'))
+            # Show the possible solutions
+            for i in range(3):
+                n = int(uniform(0, len(self._CPATHS)))
+                while(not self._image_in_dots(n) or \
+                      self._image_in_opts(n)):
+                    n = int(uniform(0, len(self._CPATHS)))
+                self._opts[i].type = n
+            self._answer = int(uniform(0, 3))
+            n = int(uniform(0, len(self._CPATHS)))
+            while(self._image_in_dots(n)):
+                n = int(uniform(0, len(self._CPATHS)))
+            self._opts[self._answer].type = n
+            for i in range(3):
+                self._opts[i].set_shape(self._new_dot_surface(
+                        color_image=self._opts[i].type))
                 self._opts[i].set_layer(100)
         elif self._game == 2:
             self._set_label(ngettext(
@@ -354,7 +383,7 @@ class Game():
         if spr == None:
             return
 
-        if self._game in [0, 1]:
+        if self._game in [0, 1, 3]:
             for i in range(3):
                 if self._opts[i] == spr:
                     break
@@ -379,7 +408,7 @@ class Game():
                 self._opts[i].set_label('☹')
                 self._correct = 0
 
-        if self._game in [0, 1]:
+        if self._game in [0, 1, 3]:
             for i in range(self._level):
                 self._dots[i].set_layer(100)
         else:
@@ -420,10 +449,16 @@ class Game():
     def _destroy_cb(self, win, event):
         gtk.main_quit()
 
-    def _new_dot_surface(self, color='#000000', image=None):
+    def _new_dot_surface(self, color='#000000', image=None, color_image=None):
         ''' generate a dot of a color color '''
         self._dot_cache = {}
-        if image is not None:
+        if color_image is not None:
+            if color_image + 10000 in self._dot_cache:
+                return self._dot_cache[color_image + 10000]
+            pixbuf = gtk.gdk.pixbuf_new_from_file_at_size(
+                os.path.join(self._path, self._CPATHS[color_image]),
+                self._svg_width, self._svg_height)
+        elif image is not None:
             if image in self._dot_cache:
                 return self._dot_cache[image]
             pixbuf = gtk.gdk.pixbuf_new_from_file_at_size(
@@ -450,10 +485,12 @@ class Game():
         context.set_source_pixbuf(pixbuf, 0, 0)
         context.rectangle(0, 0, self._svg_width, self._svg_height)
         context.fill()
-        if image is None:
-            self._dot_cache[color] = surface
-        else:
+        if color_image is not None:
+            self._dot_cache[color_image + 10000] = surface
+        elif image is not None:
             self._dot_cache[image] = surface
+        else:
+            self._dot_cache[color] = surface
         return surface
 
     def _line(self, vertical=True):

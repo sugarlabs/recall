@@ -24,7 +24,8 @@ if _have_toolbox:
     from sugar.activity.widgets import ActivityToolbarButton
     from sugar.activity.widgets import StopButton
 
-from toolbar_utils import button_factory, label_factory, separator_factory
+from toolbar_utils import button_factory, radio_factory, label_factory, \
+    separator_factory
 from utils import json_load, json_dump
 
 import telepathy
@@ -64,6 +65,7 @@ class RecallActivity(activity.Activity):
         else:
             self.colors = ['#A0FFA0', '#FF8080']
 
+        self._restoring = False
         self._setup_toolbars(_have_toolbox)
         self._setup_dispatch_table()
 
@@ -112,8 +114,26 @@ class RecallActivity(activity.Activity):
             toolbox.set_current_toolbar(1)
             self.toolbar = games_toolbar
 
-        self._new_game_button_h = button_factory(
-            'view-refresh', self.toolbar, self._new_game_cb,
+        self.radio = []
+        self.radio.append(radio_factory(
+            'game-1', self.toolbar, self._new_game_cb,
+            cb_arg=0, tooltip=_('Play attention game (repeated symbol).'),
+            group=None))
+        self.radio.append(radio_factory(
+            'game-2', self.toolbar, self._new_game_cb,
+            cb_arg=1, tooltip=_('Play attention game (missing symbol).'),
+            group=self.radio[0]))
+        self.radio.append(radio_factory(
+            'game-4', self.toolbar, self._new_game_cb,
+            cb_arg=2, tooltip=_('Play n-back game.'),
+            group=self.radio[0]))
+        self.radio.append(radio_factory(
+            'game-3', self.toolbar, self._new_game_cb,
+            cb_arg=3, tooltip=_('Play attention game (color symbols).'),
+            group=self.radio[0]))
+
+        new_level_button_h = button_factory(
+            'view-refresh', self.toolbar, self._new_level_cb,
             tooltip=_('Load new images.'))
 
         self.status = label_factory(self.toolbar, '')
@@ -127,9 +147,13 @@ class RecallActivity(activity.Activity):
             toolbox.toolbar.insert(stop_button, -1)
             stop_button.show()
 
-    def _new_game_cb(self, button=None):
-        ''' Start a new game. '''
-        self._game.new_game()
+    def _new_level_cb(self, button):
+        ''' Reload a new level. '''
+        self._game.new_game(game=None)
+
+    def _new_game_cb(self, button=None, game=0):
+        ''' Reload a new level. '''
+        self._game.new_game(game=game, restart=(not self._restoring))
 
     def write_file(self, file_path):
         """ Write the grid status to the Journal """
@@ -145,6 +169,7 @@ class RecallActivity(activity.Activity):
 
     def _restore(self):
         """ Restore the game state from metadata """
+        self._restoring = True
         dot_list = []
         dots = self.metadata['dotlist'].split()
         for dot in dots:
@@ -159,9 +184,11 @@ class RecallActivity(activity.Activity):
             level = 0
         if 'game' in self.metadata:
             game = int(self.metadata['game'])
+            self.radio[game].set_active(True)
         else:
             game = 0
         self._game.restore_game(dot_list, correct, level, game)
+        self._restoring = False
 
     # Collaboration-related methods
 
