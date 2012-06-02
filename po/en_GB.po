@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-05-11 11:55-0400\n"
-"PO-Revision-Date: 2012-05-27 06:41+0200\n"
+"POT-Creation-Date: 2012-05-27 00:34-0400\n"
+"PO-Revision-Date: 2012-06-02 02:23+0200\n"
 "Last-Translator: Chris <cjl@laptop.org>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: en_GB\n"
@@ -21,25 +21,40 @@ msgstr ""
 msgid "Recall"
 msgstr "Recall"
 
-#: game.py:253
+#: RecallActivity.py:112
+msgid "Game"
+msgstr "Game"
+
+#: RecallActivity.py:120
+msgid "Play attention game (repeated symbol)."
+msgstr "Play attention game (repeated symbol)."
+
+#: RecallActivity.py:124
+msgid "Play attention game (missing symbol)."
+msgstr "Play attention game (missing symbol)."
+
+#: RecallActivity.py:128
+msgid "Play n-back game."
+msgstr "Play n-back game."
+
+#: RecallActivity.py:132
+msgid "Play attention game (color symbols)."
+msgstr "Play attention game (colour symbols)."
+
+#: game.py:275
 msgid "Recall which image was repeated."
 msgstr "Recall which image was repeated."
 
-#: game.py:274
+#: game.py:296 game.py:314
 msgid "Recall which image was not shown."
 msgstr "Recall which image was not shown."
 
-#: game.py:293
+#: game.py:333
 #, python-format
 msgid "Recall which image was displayed %d time ago"
 msgid_plural "Recall which image was displayed %d times ago"
 msgstr[0] "Recall which image was displayed %d time ago"
 msgstr[1] "Recall which image was displayed %d times ago"
 
-#: RecallActivity.py:110
-msgid "Game"
-msgstr "Game"
-
-#: RecallActivity.py:117
-msgid "Load new images."
-msgstr "Load new images."
+#~ msgid "Load new images."
+#~ msgstr "Load new images."
