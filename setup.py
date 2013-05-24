@@ -1,32 +1,22 @@
-#!/usr/bin/env python
-import os
-import sys
+#!/usr/bin/python
 
-if len(sys.argv) > 1 and '--no-sugar' == sys.argv[1]:
-    # Remove the argument from the stack so we don't cause problems
-    # for distutils
-    sys.argv.pop(1)
-    
-    import glob, os.path, string
-    from distutils.core import setup
-    
-    DATA_FILES = [
-        ('icons', glob.glob('icons/*')),
-        ('images', glob.glob('images/*')),
-        ('/usr/share/applications', ['turtleart.desktop'])
-        ]
+# Copyright (C) 2006, Red Hat, Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-    setup (name = 'Turtle Art',
-           description = "A LOGO-like tool for teaching programming",
-           author = "Walter Bender",
-           author_email = "walter.bender@gmail.com",
-           version = '0.9.4',
-           packages = ['TurtleArt'],
-           scripts = ['turtleart'],
-           data_files = DATA_FILES,
-           )
-else: 
-    from sugar.activity import bundlebuilder
+from sugar.activity import bundlebuilder
 
-    if __name__ == "__main__":
-        bundlebuilder.start()
+bundlebuilder.start()
+
