@@ -7,3 +7,4 @@ exec = sugar-activity RecallActivity.RecallActivity
 icon = activity-recall
 show_launcher = yes
 summary = memory exercise game
+category = game
