@@ -62,7 +62,7 @@ class Game():
 
         self._width = gtk.gdk.screen_width()
         self._height = gtk.gdk.screen_height() - (GRID_CELL_SIZE * 1.5)
-        self._scale = self._height / (4 * DOT_SIZE * 1.2)
+        self._scale = self._height / (4 * DOT_SIZE * 1.3)
         self._dot_size = int(DOT_SIZE * self._scale)
         self._space = int(self._dot_size / 5.)
         self.we_are_sharing = False
@@ -75,7 +75,7 @@ class Game():
         self._correct = 0
 
         # Find the image files
-        self._PATHS = glob.glob(os.path.join(self._path, 'images', '*.svg'))
+        self._PATHS = glob.glob(os.path.join(self._path, 'images', '*.png'))
         self._CPATHS = glob.glob(
             os.path.join(self._path, 'color-images', '*.svg'))
 
