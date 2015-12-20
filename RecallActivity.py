@@ -127,10 +127,13 @@ class RecallActivity(activity.Activity):
             'game-4', self.toolbar, self._new_game_cb,
             cb_arg=2, tooltip=_('Play n-back game.'),
             group=self.radio[0]))
+        """
+        # Game mode disabled
         self.radio.append(radio_factory(
             'game-3', self.toolbar, self._new_game_cb,
             cb_arg=3, tooltip=_('Play attention game (color symbols).'),
             group=self.radio[0]))
+        """
 
         self.status = label_factory(self.toolbar, '')
 
