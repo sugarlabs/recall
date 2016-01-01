@@ -17,11 +17,8 @@ Three different games:
 (2) recall the image shown previously
 '''
 
-import gtk
-import gobject
 import cairo
 import os
-import glob
 from random import uniform
 
 from gettext import gettext as _
@@ -30,16 +27,27 @@ from gettext import ngettext
 import logging
 _logger = logging.getLogger('search-activity')
 
-try:
-    from sugar.graphics import style
-    GRID_CELL_SIZE = style.GRID_CELL_SIZE
-except ImportError:
-    GRID_CELL_SIZE = 0
+from gi.repository import Gtk
+from gi.repository import Gdk
+from gi.repository import GObject
+from gi.repository import GdkPixbuf
+
+from sugar3.graphics import style
+GRID_CELL_SIZE = style.GRID_CELL_SIZE
 
 DOT_SIZE = 40
 
 
 from sprites import Sprites, Sprite
+
+
+def glob(path, end):
+    files = []
+    for name in os.listdir(path):
+        if name.endswith(end):
+            files.append(os.path.join(path, name))
+
+    return files
 
 
 class Game():
@@ -55,13 +63,13 @@ class Game():
         self._colors.append(colors[0])
         self._colors.append(colors[1])
 
-        self._canvas.set_flags(gtk.CAN_FOCUS)
-        self._canvas.connect("expose-event", self._expose_cb)
-        self._canvas.add_events(gtk.gdk.BUTTON_PRESS_MASK)
+        self._canvas.set_can_focus(True)
+        self._canvas.connect("draw", self._draw_cb)
+        self._canvas.add_events(Gdk.EventMask.BUTTON_PRESS_MASK)
         self._canvas.connect("button-press-event", self._button_press_cb)
 
-        self._width = gtk.gdk.screen_width()
-        self._height = gtk.gdk.screen_height() - (GRID_CELL_SIZE * 1.5)
+        self._width = Gdk.Screen.width()
+        self._height = Gdk.Screen.height() - (GRID_CELL_SIZE * 1.5)
         self._scale = self._height / (4 * DOT_SIZE * 1.3)
         self._dot_size = int(DOT_SIZE * self._scale)
         self._space = int(self._dot_size / 5.)
@@ -75,9 +83,8 @@ class Game():
         self._correct = 0
 
         # Find the image files
-        self._PATHS = glob.glob(os.path.join(self._path, 'images', '*.png'))
-        self._CPATHS = glob.glob(
-            os.path.join(self._path, 'color-images', '*.svg'))
+        self._PATHS = glob(os.path.join(self._path, 'images'), '.png')
+        self._CPATHS = glob(os.path.join(self._path, 'color-images'), '*.svg')
 
         # Generate the sprites we'll need...
         self._sprites = Sprites(self._canvas)
@@ -116,7 +123,7 @@ class Game():
     def _all_clear(self):
         ''' Things to reinitialize when starting up a new game. '''
         if self._timeout_id is not None:
-            gobject.source_remove(self._timeout_id)
+            GObject.source_remove(self._timeout_id)
 
         # Auto advance levels
         if self._correct > 3 and self._level < len(self._dots):
@@ -154,7 +161,7 @@ class Game():
                         self._colors[int(uniform(0, 3))]))
         self._dance_counter += 1
         if self._dance_counter < 10:
-            self._timeout_id = gobject.timeout_add(500, self._dance_step)
+            self._timeout_id = GObject.timeout_add(500, self._dance_step)
         else:
             self._new_game()
 
@@ -202,7 +209,7 @@ class Game():
 
     def _load_image_from_list(self):
         if self._recall_counter == len(self._recall_list):
-            self._timeout_id = gobject.timeout_add(
+            self._timeout_id = GObject.timeout_add(
                 1000, self._ask_the_question)
             return
         for dot in self._dots:
@@ -211,7 +218,7 @@ class Game():
             dot.set_layer(100)
             dot.set_label('')
         self._recall_counter += 1
-        self._timeout_id = gobject.timeout_add(
+        self._timeout_id = GObject.timeout_add(
             1000, self._load_image_from_list)
 
     def _find_repeat(self):
@@ -257,7 +264,7 @@ class Game():
             self._parent.send_new_game()
 
         if self._game in [0, 1, 3]:
-            self._timeout_id = gobject.timeout_add(
+            self._timeout_id = GObject.timeout_add(
                 3000, self._ask_the_question)
 
     def _ask_the_question(self):
@@ -418,9 +425,9 @@ class Game():
                 dot.set_layer(100)
 
         if self._correct == 0:
-            self._timeout_id = gobject.timeout_add(5000, self.new_game)
+            self._timeout_id = GObject.timeout_add(5000, self.new_game)
         else:
-            self._timeout_id = gobject.timeout_add(3000, self.new_game)
+            self._timeout_id = GObject.timeout_add(3000, self.new_game)
         return True
 
     def remote_button_press(self, dot, color):
@@ -433,21 +440,20 @@ class Game():
         _logger.debug('enabling sharing')
         self.we_are_sharing = share
 
-    def _expose_cb(self, win, event):
-        self.do_expose_event(event)
+    def _draw_cb(self, win, context):
+        self.do_draw(win, context)
 
-    def do_expose_event(self, event):
-        ''' Handle the expose-event by drawing '''
+    def do_draw(self, win, cr):
+        ''' Handle the draw-event by drawing '''
         # Restrict Cairo to the exposed area
-        cr = self._canvas.window.cairo_create()
-        cr.rectangle(event.area.x, event.area.y,
-                event.area.width, event.area.height)
+        alloc = win.get_allocation()
+        cr.rectangle(0, 0, alloc.width, alloc.height)
         cr.clip()
         # Refresh sprite list
         self._sprites.redraw_sprites(cr=cr)
 
     def _destroy_cb(self, win, event):
-        gtk.main_quit()
+        Gtk.main_quit()
 
     def _new_dot_surface(self, color='#000000', image=None, color_image=None):
         ''' generate a dot of a color color '''
@@ -455,13 +461,13 @@ class Game():
         if color_image is not None:
             if color_image + 10000 in self._dot_cache:
                 return self._dot_cache[color_image + 10000]
-            pixbuf = gtk.gdk.pixbuf_new_from_file_at_size(
+            pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(
                 os.path.join(self._path, self._CPATHS[color_image]),
                 self._svg_width, self._svg_height)
         elif image is not None:
             if image in self._dot_cache:
                 return self._dot_cache[image]
-            pixbuf = gtk.gdk.pixbuf_new_from_file_at_size(
+            pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(
                 os.path.join(self._path, self._PATHS[image]),
                 self._svg_width, self._svg_height)
         else:
@@ -481,8 +487,7 @@ class Game():
         surface = cairo.ImageSurface(cairo.FORMAT_ARGB32,
                                      self._svg_width, self._svg_height)
         context = cairo.Context(surface)
-        context = gtk.gdk.CairoContext(context)
-        context.set_source_pixbuf(pixbuf, 0, 0)
+        Gdk.cairo_set_source_pixbuf(context, pixbuf, 0, 0)
         context.rectangle(0, 0, self._svg_width, self._svg_height)
         context.fill()
         if color_image is not None:
@@ -539,7 +544,7 @@ class Game():
 
 def svg_str_to_pixbuf(svg_string):
     """ Load pixbuf from SVG string """
-    pl = gtk.gdk.PixbufLoader('svg')
+    pl = GdkPixbuf.PixbufLoader.new_with_type('svg')
     pl.write(svg_string)
     pl.close()
     pixbuf = pl.get_pixbuf()
