@@ -9,33 +9,27 @@
 # along with this library; if not, write to the Free Software
 # Foundation, 51 Franklin Street, Suite 500 Boston, MA 02110-1335 USA
 
+from gi.repository import Gtk
+from gi.repository import Gdk
 
-import gtk
-
-from sugar.activity import activity
-from sugar import profile
-try:
-    from sugar.graphics.toolbarbox import ToolbarBox
-    _have_toolbox = True
-except ImportError:
-    _have_toolbox = False
-
-if _have_toolbox:
-    from sugar.activity.widgets import ActivityToolbarButton
-    from sugar.activity.widgets import StopButton
+import dbus
+import telepathy
+from gettext import gettext as _
+from dbus.service import signal
+from dbus.gobject_service import ExportedGObject
 
 from toolbar_utils import button_factory, radio_factory, label_factory, \
     separator_factory
 from utils import json_load, json_dump
 
-import telepathy
-import dbus
-from dbus.service import signal
-from dbus.gobject_service import ExportedGObject
-from sugar.presence import presenceservice
-from sugar.presence.tubeconn import TubeConnection
+from sugar3 import profile
+from sugar3.activity import activity
+from sugar3.presence import presenceservice
+from sugar3.presence.tubeconn import TubeConnection
 
-from gettext import gettext as _
+from sugar3.graphics.toolbarbox import ToolbarBox
+from sugar3.activity.widgets import ActivityToolbarButton
+from sugar3.activity.widgets import StopButton
 
 from game import Game
 
@@ -52,10 +46,7 @@ class RecallActivity(activity.Activity):
 
     def __init__(self, handle):
         """ Initialize the toolbars and the game board """
-        try:
-            super(RecallActivity, self).__init__(handle)
-        except dbus.exceptions.DBusException, e:
-            _logger.error(str(e))
+        super(RecallActivity, self).__init__(handle)
 
         self.path = activity.get_bundle_path()
 
@@ -66,13 +57,13 @@ class RecallActivity(activity.Activity):
             self.colors = ['#A0FFA0', '#FF8080']
 
         self._restoring = False
-        self._setup_toolbars(_have_toolbox)
+        self._setup_toolbars(True)
         self._setup_dispatch_table()
 
         # Create a canvas
-        canvas = gtk.DrawingArea()
-        canvas.set_size_request(gtk.gdk.screen_width(), \
-                                gtk.gdk.screen_height())
+        canvas = Gtk.DrawingArea()
+        canvas.set_size_request(Gdk.Screen.width(), \
+                                Gdk.Screen.height())
         self.set_canvas(canvas)
         canvas.show()
         self.show_all()
@@ -90,29 +81,17 @@ class RecallActivity(activity.Activity):
         """ Setup the toolbars. """
 
         self.max_participants = 4
+        toolbox = ToolbarBox()
 
-        if have_toolbox:
-            toolbox = ToolbarBox()
+        # Activity toolbar
+        activity_button = ActivityToolbarButton(self)
 
-            # Activity toolbar
-            activity_button = ActivityToolbarButton(self)
+        toolbox.toolbar.insert(activity_button, 0)
+        activity_button.show()
 
-            toolbox.toolbar.insert(activity_button, 0)
-            activity_button.show()
-
-            self.set_toolbar_box(toolbox)
-            toolbox.show()
-            self.toolbar = toolbox.toolbar
-
-        else:
-            # Use pre-0.86 toolbar design
-            games_toolbar = gtk.Toolbar()
-            toolbox = activity.ActivityToolbox(self)
-            self.set_toolbox(toolbox)
-            toolbox.add_toolbar(_('Game'), games_toolbar)
-            toolbox.show()
-            toolbox.set_current_toolbar(1)
-            self.toolbar = games_toolbar
+        self.set_toolbar_box(toolbox)
+        toolbox.show()
+        self.toolbar = toolbox.toolbar
 
         self.radio = []
         self.radio.append(radio_factory(
@@ -137,14 +116,12 @@ class RecallActivity(activity.Activity):
 
         self.status = label_factory(self.toolbar, '')
 
-        if _have_toolbox:
-            separator_factory(toolbox.toolbar, True, False)
+        separator_factory(toolbox.toolbar, True, False)
 
-        if _have_toolbox:
-            stop_button = StopButton(self)
-            stop_button.props.accelerator = '<Ctrl>q'
-            toolbox.toolbar.insert(stop_button, -1)
-            stop_button.show()
+        stop_button = StopButton(self)
+        stop_button.props.accelerator = '<Ctrl>q'
+        toolbox.toolbar.insert(stop_button, -1)
+        stop_button.show()
 
     def _new_game_cb(self, button=None, game=0):
         ''' Reload a new level. '''
