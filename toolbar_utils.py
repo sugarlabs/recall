@@ -107,10 +107,12 @@ def label_factory(toolbar, label_text, width=None):
     ''' Factory for adding a label to a toolbar '''
     label = Gtk.Label(label_text)
     label.set_line_wrap(True)
+    label.set_xalign(0)
     if width is not None:
         label.set_size_request(width, -1)  # doesn't work on XOs
     label.show()
     toolitem = Gtk.ToolItem()
+    toolitem.set_expand(True)
     toolitem.add(label)
     if hasattr(toolbar, 'insert'):  # the main toolbar
         toolbar.insert(toolitem, -1)
