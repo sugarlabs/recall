@@ -1,6 +1,6 @@
 [Activity]
 name = Recall
-activity_version = 5
+activity_version = 6
 license = GPLv3
 bundle_id = org.sugarlabs.RecallActivity
 exec = sugar-activity RecallActivity.RecallActivity
@@ -8,3 +8,4 @@ icon = activity-recall
 show_launcher = yes
 summary = memory exercise game
 category = game
+repository = https://github.com/walterbender/recall
