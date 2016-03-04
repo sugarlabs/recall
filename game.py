@@ -448,6 +448,10 @@ class Game():
         # Restrict Cairo to the exposed area
         alloc = win.get_allocation()
         cr.rectangle(0, 0, alloc.width, alloc.height)
+        cr.set_source_rgb(1, 1, 1)
+        cr.fill()
+
+        cr.rectangle(0, 0, alloc.width, alloc.height)
         cr.clip()
         # Refresh sprite list
         self._sprites.redraw_sprites(cr=cr)
