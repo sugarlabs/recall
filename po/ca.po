@@ -1,0 +1,59 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Robert Antoni Buj Gelonch <rbuj@fedoraproject.org>, 2016.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-06-28 17:55-0400\n"
+"PO-Revision-Date: 2016-04-25 17:38+0000\n"
+"Last-Translator: Robert <rbuj@fedoraproject.org>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: ca\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Pootle 2.5.1.1\n"
+"X-POOTLE-MTIME: 1461605937.000000\n"
+
+#: activity/activity.info:2
+msgid "Recall"
+msgstr "Recordació"
+
+#: RecallActivity.py:112
+msgid "Game"
+msgstr "Joc"
+
+#: RecallActivity.py:120
+msgid "Play attention game (repeated symbol)."
+msgstr "Juga al joc d'atenció (amb repetició de símbols)."
+
+#: RecallActivity.py:124
+msgid "Play attention game (missing symbol)."
+msgstr "Juga al joc d'atenció (amb símbols que falten)."
+
+#: RecallActivity.py:128
+msgid "Play n-back game."
+msgstr "Juga al joc n-anterior."
+
+#: RecallActivity.py:132
+msgid "Play attention game (color symbols)."
+msgstr "Juga al joc d'atenció (amb símbols de colors)."
+
+#: game.py:275
+msgid "Recall which image was repeated."
+msgstr "Recordeu quina imatge s'ha repetit."
+
+#: game.py:296 game.py:314
+msgid "Recall which image was not shown."
+msgstr "Recordeu quina imatge no s'ha mostrat."
+
+#: game.py:333
+#, python-format
+msgid "Recall which image was displayed %d time ago"
+msgid_plural "Recall which image was displayed %d times ago"
+msgstr[0] "Recordeu quina imatge s'ha mostrat fa %d posició."
+msgstr[1] "Recordeu quina imatge s'ha mostrat fa %d posicions."
