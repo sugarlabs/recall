@@ -2,62 +2,58 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-06-28 17:55-0400\n"
-"PO-Revision-Date: 2015-02-19 15:22+0000\n"
-"Last-Translator: Tymon <dwgipk@gmail.com>\n"
+"PO-Revision-Date: 2016-05-21 23:49+0000\n"
+"Last-Translator: Chris <cjl@sugarlabs.org>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: pl\n"
+"Language: ibo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
-"|| n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
 "X-Generator: Pootle 2.5.1.1\n"
-"X-POOTLE-MTIME: 1424359345.000000\n"
+"X-POOTLE-MTIME: 1463874549.000000\n"
 
 #: activity/activity.info:2
 msgid "Recall"
-msgstr "Przypomnij sobie"
+msgstr "Cheta"
 
 #: RecallActivity.py:112
 msgid "Game"
-msgstr "Gra"
+msgstr "egwumegwu"
 
 #: RecallActivity.py:120
 msgid "Play attention game (repeated symbol)."
-msgstr "Zagraj w grę na uwagę (powtarzający się symbol)."
+msgstr "Gba ntị egwumegwu (ugboro ugboro akara)."
 
 #: RecallActivity.py:124
 msgid "Play attention game (missing symbol)."
-msgstr "Zagraj w grę na uwagę (brakujący symbol)."
+msgstr "Gba ntị egwumegwu (efu akara)."
 
 #: RecallActivity.py:128
 msgid "Play n-back game."
-msgstr "Zagraj w grę \"n-back\"."
+msgstr "Gba n-azụ na egwumegwu."
 
 #: RecallActivity.py:132
 msgid "Play attention game (color symbols)."
-msgstr "Zagraj w grę na uwagę (kolorowe symbole)."
+msgstr "Gba ntị egwumegwu (na agba na akara)."
 
 #: game.py:275
 msgid "Recall which image was repeated."
-msgstr "Przypomnij sobie, który obrazek został powtórzony."
+msgstr "Cheta nke n'onyinyo ugboro ugboro."
 
 #: game.py:296 game.py:314
 msgid "Recall which image was not shown."
-msgstr "Przypomnij sobie, który obrazek nie został pokazany."
+msgstr "Cheta nke n'onyinyo e gosiri."
 
 #: game.py:333
 #, python-format
 msgid "Recall which image was displayed %d time ago"
 msgid_plural "Recall which image was displayed %d times ago"
-msgstr[0] "Przypomnij sobie, który obrazek został pokazany %d czas temu."
-msgstr[1] "Przypomnij sobie, który obrazek został pokazany %d czasy temu."
-msgstr[2] "Przypomnij sobie, który obrazek został pokazany %d czasów temu."
-
-#~ msgid "Load new images."
-#~ msgstr "Załaduj nowe obrazki."
+msgstr[0] "Cheta nke n'onyinyo E gosipụtara %d oge gara aga"
+msgstr[1] "Cheta nke n'onyinyo E gosipụtara %d ugboro gara aga"
