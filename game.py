@@ -29,7 +29,7 @@ _logger = logging.getLogger('search-activity')
 
 from gi.repository import Gtk
 from gi.repository import Gdk
-from gi.repository import GObject
+from gi.repository import GLib
 from gi.repository import GdkPixbuf
 
 from sugar3.graphics import style
@@ -122,7 +122,7 @@ class Game():
     def _all_clear(self):
         ''' Things to reinitialize when starting up a new game. '''
         if self._timeout_id is not None:
-            GObject.source_remove(self._timeout_id)
+            GLib.source_remove(self._timeout_id)
 
         # Auto advance levels
         if self._correct > 3 and self._level < len(self._dots):
@@ -160,7 +160,7 @@ class Game():
                         self._colors[int(uniform(0, 3))]))
         self._dance_counter += 1
         if self._dance_counter < 10:
-            self._timeout_id = GObject.timeout_add(500, self._dance_step)
+            self._timeout_id = GLib.timeout_add(500, self._dance_step)
         else:
             self._new_game()
 
@@ -208,7 +208,7 @@ class Game():
 
     def _load_image_from_list(self):
         if self._recall_counter == len(self._recall_list):
-            self._timeout_id = GObject.timeout_add(
+            self._timeout_id = GLib.timeout_add(
                 1000, self._ask_the_question)
             return
         for dot in self._dots:
@@ -217,7 +217,7 @@ class Game():
             dot.set_layer(100)
             dot.set_label('')
         self._recall_counter += 1
-        self._timeout_id = GObject.timeout_add(
+        self._timeout_id = GLib.timeout_add(
             1000, self._load_image_from_list)
 
     def _find_repeat(self):
@@ -259,7 +259,7 @@ class Game():
                     self._repeat = 0
 
         if self._game in [0, 1, 3]:
-            self._timeout_id = GObject.timeout_add(
+            self._timeout_id = GLib.timeout_add(
                 3000, self._ask_the_question)
 
     def _ask_the_question(self):
@@ -420,9 +420,9 @@ class Game():
                 dot.set_layer(100)
 
         if self._correct == 0:
-            self._timeout_id = GObject.timeout_add(5000, self.new_game)
+            self._timeout_id = GLib.timeout_add(5000, self.new_game)
         else:
-            self._timeout_id = GObject.timeout_add(3000, self.new_game)
+            self._timeout_id = GLib.timeout_add(3000, self.new_game)
         return True
 
     def _draw_cb(self, win, context):
