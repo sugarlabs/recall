@@ -379,7 +379,7 @@ class Game():
             return
 
         win.grab_focus()
-        x, y = map(int, event.get_coords())
+        x, y = list(map(int, event.get_coords()))
 
         spr = self._sprites.find_sprite((x, y), inverse=True)
         if spr == None:
