@@ -375,8 +375,8 @@ class Sprite:
         my_height = self.rect.height - self._margins[1] - self._margins[3]
         for i in range(len(self.labels)):
             pl = PangoCairo.create_layout(cr)
-            text = str(self.labels[i])
-            pl.set_text(text, len(text))
+            text = self.labels[i]
+            pl.set_text(text, -1)
             self._fd.set_size(int(self._scale[i] * Pango.SCALE))
             pl.set_font_description(self._fd)
             w = pl.get_size()[0] / Pango.SCALE
@@ -390,7 +390,7 @@ class Sprite:
                     j = len(self.labels[i]) - 1
                     while(w > my_width and j > 0):
                         text = "…" + self.labels[i][len(self.labels[i]) - j:]
-                        pl.set_text(text, len(text))
+                        pl.set_text(text, -1)
                         self._fd.set_size(int(self._scale[i] * Pango.SCALE))
                         pl.set_font_description(self._fd)
                         w = pl.get_size()[0] / Pango.SCALE
@@ -423,7 +423,7 @@ class Sprite:
             for i in range(len(self.labels)):
                 pl = cr.create_layout()
                 text = self.labels[i]
-                pl.set_text(text, len(text))
+                pl.set_text(text, -1)
                 self._fd.set_size(int(self._scale[i] * Pango.SCALE))
                 pl.set_font_description(self._fd)
                 w = pl.get_size()[0] / Pango.SCALE
