@@ -150,7 +150,7 @@ class Sprites:
             print('sprites.redraw_sprites: no Cairo context')
             return
         for spr in self.list:
-            if area == None:
+            if area is None:
                 spr.draw(cr=cr)
             else:
                 intersection = spr.rect.intersect(area)
@@ -269,11 +269,11 @@ class Sprite:
     def set_label(self, new_label, i=0):
         ''' Set the label drawn on the sprite '''
         self._extend_labels_array(i)
-        if type(new_label) is str or type(new_label) is str:
+        if isinstance(new_label, bytes) or isinstance(new_label, str):
             # pango doesn't like nulls
             self.labels[i] = new_label.replace("\0", " ")
         else:
-            self.labels[i] = str(new_label)
+            self.labels[i] = str(new_label).encode()
         self.inval()
 
     def set_margins(self, l=0, t=0, r=0, b=0):
@@ -340,6 +340,7 @@ class Sprite:
     def draw(self, cr=None):
         ''' Draw the sprite (and label) '''
         if cr is None:
+            cr = self._sprites.cr
             print('sprite.draw: no Cairo context.')
             return
         for i, surface in enumerate(self.cached_surfaces):
