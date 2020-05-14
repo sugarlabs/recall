@@ -75,7 +75,7 @@ class RecallActivity(activity.Activity):
     def _setup_toolbars(self, have_toolbox):
         """ Setup the toolbars. """
 
-        self.max_participants = 4
+        self.max_participants = 1
         toolbox = ToolbarBox()
 
         # Activity toolbar
