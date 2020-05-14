@@ -21,8 +21,6 @@ from utils import json_load, json_dump
 
 from sugar3 import profile
 from sugar3.activity import activity
-from sugar3.presence import presenceservice
-from sugar3.presence.tubeconn import TubeConnection
 
 try:
     from sugar3.presence.wrapper import CollabWrapper
