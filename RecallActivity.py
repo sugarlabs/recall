@@ -42,6 +42,7 @@ class RecallActivity(activity.Activity):
     def __init__(self, handle):
         """ Initialize the toolbars and the game board """
         super(RecallActivity, self).__init__(handle)
+        self.max_participants = 1
 
         self.path = activity.get_bundle_path()
 
