@@ -13,7 +13,6 @@ from gi.repository import Gtk
 from gi.repository import Gdk
 
 import dbus
-import telepathy
 import logging
 from gettext import gettext as _
 from dbus.service import signal
