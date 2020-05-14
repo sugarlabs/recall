@@ -22,12 +22,6 @@ from utils import json_load, json_dump
 from sugar3 import profile
 from sugar3.activity import activity
 
-try:
-    from sugar3.presence.wrapper import CollabWrapper
-    logging.error('USING SUGAR COLLAB WRAPPER!')
-except ImportError:
-    from collabwrapper.collabwrapper import CollabWrapper
-
 from sugar3.graphics.toolbarbox import ToolbarBox
 from sugar3.activity.widgets import ActivityToolbarButton
 from sugar3.activity.widgets import StopButton
@@ -70,7 +64,6 @@ class RecallActivity(activity.Activity):
 
         self._game = Game(canvas, parent=self, path=self.path,
                           colors=self.colors)
-        self._setup_collab()
         if 'dotlist' in self.metadata:
             self._restore()
         else:
@@ -160,51 +153,3 @@ class RecallActivity(activity.Activity):
             game = 0
         self._game.restore_game(dot_list, correct, level, game)
         self._restoring = False
-
-    # Collaboration-related methods
-
-    def _setup_collab(self):
-        """ Setup the Collab Wrapper. """
-        self.initiating = None  # sharing (True) or joining (False)
-        self._collab = CollabWrapper(self)
-        self._collab.connect('message', self.__message_cb)
-
-        owner = self._collab._leader
-        self.owner = owner
-
-        self._game.set_sharing(True)
-
-    def __message_cb(self, collab, buddy, message):
-        action = message.get('action')
-        payload = message.get('payload')
-        if action == 'n':
-            '''Get a new game grid'''
-            self._receive_new_game(payload)
-        elif action == 'p':
-            '''Get a dot click'''
-            self._receive_dot_click(payload)
-
-    def send_new_game(self):
-        ''' Send a new grid to all players '''
-        self._collab.post(dict(
-                action = 'n',
-                payload = json_dump(self._game.save_game())
-            ))
-
-    def _receive_new_game(self, payload):
-        ''' Sharer can start a new game. '''
-        dot_list, correct, level, game = json_load(payload)
-        self._game.restore_game(dot_list, correct, level, game)
-
-    def send_dot_click(self, dot, color):
-        ''' Send a dot click to all the players '''
-        self._collab.post(dict(
-                action = 'p',
-                payload = json_dump([dot, color])
-            ))
-
-    def _receive_dot_click(self, payload):
-        ''' When a dot is clicked, everyone should change its color. '''
-        (dot, color) = json_load(payload)
-        self._game.remote_button_press(dot, color)
-

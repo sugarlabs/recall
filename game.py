@@ -73,7 +73,6 @@ class Game():
         self._scale = self._height / (4 * DOT_SIZE * 1.3)
         self._dot_size = int(DOT_SIZE * self._scale)
         self._space = int(self._dot_size / 5.)
-        self.we_are_sharing = False
 
         self._start_time = 0
         self._timeout_id = None
@@ -259,10 +258,6 @@ class Game():
                     _logger.debug('could not find repeat')
                     self._repeat = 0
 
-        if self.we_are_sharing:
-            _logger.debug('sending a new game')
-            self._parent.send_new_game()
-
         if self._game in [0, 1, 3]:
             self._timeout_id = GObject.timeout_add(
                 3000, self._ask_the_question)
@@ -356,7 +351,7 @@ class Game():
                 self._opts[i].set_layer(100)
 
     def restore_game(self, dot_list, correct=0, level=3, game=0):
-        ''' Restore a game from the Journal or share '''
+        ''' Restore a game from the Journal '''
         # TODO: Save/restore recall list for game 2
         self._correct = correct
         self._level = level
@@ -368,7 +363,7 @@ class Game():
         self._new_game(restore=True)
 
     def save_game(self):
-        ''' Return dot list for saving to Journal or sharing '''
+        ''' Return dot list for saving to Journal '''
         dot_list = []
         for dot in self._dots:
             dot_list.append(dot.type)
@@ -429,16 +424,6 @@ class Game():
         else:
             self._timeout_id = GObject.timeout_add(3000, self.new_game)
         return True
-
-    def remote_button_press(self, dot, color):
-        ''' Receive a button press from a sharer '''
-        self._dots[dot].type = color
-        self._dots[dot].set_shape(self._new_dot_surface(
-                color=self._colors[color]))
-
-    def set_sharing(self, share=True):
-        _logger.debug('enabling sharing')
-        self.we_are_sharing = share
 
     def _draw_cb(self, win, context):
         self.do_draw(win, context)
