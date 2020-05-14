@@ -12,11 +12,8 @@
 from gi.repository import Gtk
 from gi.repository import Gdk
 
-import dbus
 import logging
 from gettext import gettext as _
-from dbus.service import signal
-from dbus.gobject_service import ExportedGObject
 
 from toolbar_utils import button_factory, radio_factory, label_factory, \
     separator_factory
