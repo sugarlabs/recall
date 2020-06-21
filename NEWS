@@ -1,3 +1,17 @@
+7
+
+* Fix vertical Tollbar expansion (Jui Pradhan),
+* Fix Pango-Warning (Saumya Mishra),
+* Added README.md (Jui Pradhan),
+* Update screenshots (Jui Pradhan),
+* Fix PyGI Warnings (Jui Pradhan),
+* Port from GObject to GLib (Jui Pradhan),
+* Port to python3 (Jui Pradhan),
+* Disable sharing button (Jui Pradhan),
+* Limit participants to 1 (James Cameron),
+* Remove sharing (James Cameron),
+* Remove unused telepathy, dbus, sugar3 presence imports (James Cameron)
+
 6
 
 * White background (cristian99garcia)
