@@ -7,15 +7,16 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-06-28 17:55-0400\n"
-"PO-Revision-Date: 2012-06-08 04:36+0200\n"
-"Last-Translator: Aputsiaq Niels <aj@isit.gl>\n"
+"PO-Revision-Date: 2018-10-21 17:06+0000\n"
+"Last-Translator: scootergrisen <scootergrisen@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"Language: da\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Pootle 2.0.5\n"
+"X-Generator: Pootle 2.5.1.1\n"
+"X-POOTLE-MTIME: 1540141606.000000\n"
 
 #: activity/activity.info:2
 msgid "Recall"
@@ -31,7 +32,7 @@ msgstr "Spil opmærksomheds-spillet (gentagelse af symbol)."
 
 #: RecallActivity.py:124
 msgid "Play attention game (missing symbol)."
-msgstr "Spil opmærksomheds-spillet (manglende symbol)"
+msgstr "Spil opmærksomheds-spillet (manglende symbol)."
 
 #: RecallActivity.py:128
 msgid "Play n-back game."
