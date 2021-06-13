@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#Copyright (c) 2012 Walter Bender
+# Copyright (c) 2012 Walter Bender
 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -89,6 +89,7 @@ class Game():
         self._sprites = Sprites(self._canvas)
         self._dots = []
         self._opts = []
+        self._question = []
         yoffset = int(self._space / 2.)
 
         self._line = Sprite(
@@ -118,6 +119,15 @@ class Game():
             self._opts[-1].type = -1  # No image
             self._opts[-1].set_label_attributes(72)
             self._opts[-1].hide()
+        for x in range(2,7):
+            self._question.append(
+                Sprite(self._sprites,
+                    xoffset + x * (self._dot_size - 2),
+                    y * (self._dot_size - 90 + self._space) + yoffset,
+                    self._new_dot_surface(color=self._colors[2])))
+            self._question[-1].type = -1  # No image
+            self._question[-1].set_label_attributes(72)
+            self._question[-1].hide()
 
     def _all_clear(self):
         ''' Things to reinitialize when starting up a new game. '''
@@ -130,6 +140,8 @@ class Game():
             self._correct = 0
 
         self._set_label('')
+        for q in self._question:
+            q.hide()
         for i in range(3):
             self._opts[i].hide()
             self._opts[i].type = -1
@@ -265,6 +277,8 @@ class Game():
     def _ask_the_question(self):
         ''' Each game has a challenge '''
         self._timeout_id = None
+        for i in range (3):
+            self._opts[i].set_label('')
         # Hide the dots
         if self._game == 2:
             for dot in self._dots:
@@ -274,7 +288,20 @@ class Game():
                 self._dots[i].hide()
 
         if self._game == 0:
-            self._set_label(_('Recall which image was repeated.'))
+            text = []
+            text.append("¿")  
+            text.append("    recall   ")
+            text.append(" repeated ")
+            text.append("   image   ")
+            text.append("?")
+            i = 0
+            for q in self._question:
+                q.type = -1
+                q.set_shape(self._new_dot_surface(
+                            self._colors[2]))
+                q.set_label(text[i])
+                q.set_layer(100)
+                i += 1
             # Show the possible solutions
             for i in range(3):
                 n = int(uniform(0, len(self._PATHS)))
@@ -295,7 +322,20 @@ class Game():
                         image=self._opts[i].type))
                 self._opts[i].set_layer(100)
         elif self._game == 1:
-            self._set_label(_('Recall which image was not shown.'))
+            text = []
+            text.append("¿")
+            text.append("    recall   ")
+            text.append(" not shown ")
+            text.append("   image   ")
+            text.append("?")
+            i = 0
+            for q in self._question:
+                q.type = -1
+                q.set_shape(self._new_dot_surface(
+                            self._colors[2]))
+                q.set_label(text[i])
+                q.set_layer(100)
+                i += 1
             # Show the possible solutions
             for i in range(3):
                 n = int(uniform(0, len(self._PATHS)))
@@ -331,11 +371,21 @@ class Game():
                         color_image=self._opts[i].type))
                 self._opts[i].set_layer(100)
         elif self._game == 2:
-            self._set_label(ngettext(
-                    'Recall which image was displayed %d time ago',
-                    'Recall which image was displayed %d times ago',
-                    (int(self._level / 3))) % \
-                                (int(self._level / 3)))
+            text = []        
+            text.append("¿")
+            text.append("   what was ")
+            text.append(" displayed " + (str(int(self._level / 3))) + " ")
+            text.append(" time(s) ago  ")
+            text.append("?")
+            
+            i = 0
+            for q in self._question:
+                q.type = -1
+                q.set_shape(self._new_dot_surface(
+                            self._colors[2]))
+                q.set_label(text[i])
+                q.set_layer(100)
+                i += 1
             # Show the possible solutions
             for i in range(3):
                 self._answer = len(self._recall_list) - int(self._level / 3) - 1
@@ -349,6 +399,9 @@ class Game():
                 self._opts[i].set_shape(self._new_dot_surface(
                         image=self._opts[i].type))
                 self._opts[i].set_layer(100)
+        else:
+            for q in self._question:
+                q.hide()
 
     def restore_game(self, dot_list, correct=0, level=3, game=0):
         ''' Restore a game from the Journal '''
