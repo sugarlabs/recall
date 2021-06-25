@@ -17,28 +17,26 @@ Three different games:
 (2) recall the image shown previously
 '''
 
+from sprites import Sprites, Sprite
+from sugar3.graphics import style
+from gi.repository import GdkPixbuf
+from gi.repository import GLib
+from gi.repository import Gdk
+from gi.repository import Gtk
+from sugar3.activity.activity import get_activity_root
 import cairo
 import os
 from random import uniform
 
 from gettext import gettext as _
-from gettext import ngettext
 
 import logging
 _logger = logging.getLogger('search-activity')
 
-from gi.repository import Gtk
-from gi.repository import Gdk
-from gi.repository import GLib
-from gi.repository import GdkPixbuf
 
-from sugar3.graphics import style
 GRID_CELL_SIZE = style.GRID_CELL_SIZE
 
 DOT_SIZE = 40
-
-
-from sprites import Sprites, Sprite
 
 
 def glob(path, end):
@@ -52,9 +50,9 @@ def glob(path, end):
 
 class Game():
 
-    def __init__(self, canvas, get_activity_root, parent=None, path=None,
+    def __init__(self, canvas, parent=None, path=None,
                  colors=['#A0FFA0', '#FF8080']):
-        self._activity_root = get_activity_root
+
         self._canvas = canvas
         self._parent = parent
         self._parent.show_all()
@@ -84,7 +82,6 @@ class Game():
         self._correct_for_level = 0
         self._high_score_count = self.load_highscore()
 
-
         # Find the image files
         self._PATHS = glob(os.path.join(self._path, 'images'), '.png')
         self._CPATHS = glob(os.path.join(self._path, 'color-images'), '*.svg')
@@ -106,8 +103,8 @@ class Game():
 
         for y in range(3):
             for x in range(6):
-                xoffset = int((self._width - 6 * self._dot_size - \
-                                   5 * self._space) / 2.)
+                xoffset = int((self._width - 6 * self._dot_size -
+                               5 * self._space) / 2.)
                 self._dots.append(
                     Sprite(self._sprites,
                            xoffset + x * (self._dot_size + self._space),
@@ -127,12 +124,12 @@ class Game():
             self._opts[-1].set_label_attributes(72)
             self._opts[-1].hide()
 
-        for x in range(1,6):
+        for x in range(1, 6):
             self._question.append(
                 Sprite(self._sprites,
-                    xoffset + (x ) * (self._dot_size - 2),
-                    y * (self._dot_size - 120 + self._space) + yoffset,
-                    self._new_dot_surface(color=self._colors[2])))
+                       xoffset + (x) * (self._dot_size - 2),
+                       y * (self._dot_size - 120 + self._space) + yoffset,
+                       self._new_dot_surface(color=self._colors[2])))
             self._question[-1].type = -1  # No image
             self._question[-1].set_label_attributes(72)
             self._question[-1].hide()
@@ -165,7 +162,7 @@ class Game():
             dot.type = -1
             if self._game == 2 or self._dots.index(dot) < self._level:
                 dot.set_shape(self._new_dot_surface(
-                            self._colors[abs(dot.type)]))
+                    self._colors[abs(dot.type)]))
                 dot.set_label('?')
                 dot.set_layer(100)
             else:
@@ -179,11 +176,11 @@ class Game():
         if self._game == 2:
             for i in range(len(self._dots)):
                 self._dots[i].set_shape(self._new_dot_surface(
-                        self._colors[int(uniform(0, 3))]))
+                    self._colors[int(uniform(0, 3))]))
         else:
             for i in range(self._level):
                 self._dots[i].set_shape(self._new_dot_surface(
-                        self._colors[int(uniform(0, 3))]))
+                    self._colors[int(uniform(0, 3))]))
         self._dance_counter += 1
         if self._dance_counter < 10:
             self._timeout_id = GLib.timeout_add(500, self._dance_step)
@@ -198,7 +195,7 @@ class Game():
             self._correct = 0
             self._correct_for_level = 0
         if restart:
-            if ( self._correct < 10): 
+            if self._correct < 10:
                 self._all_clear()
             else:
                 self._game_over()
@@ -229,10 +226,10 @@ class Game():
                 self._dots[i].type = n
             if self._game == 3:
                 self._dots[i].set_shape(self._new_dot_surface(
-                        color_image=self._dots[i].type))
+                    color_image=self._dots[i].type))
             else:
                 self._dots[i].set_shape(self._new_dot_surface(
-                        image=self._dots[i].type))
+                    image=self._dots[i].type))
             self._dots[i].set_layer(100)
             self._dots[i].set_label('')
 
@@ -280,7 +277,7 @@ class Game():
                 n = (self._repeat + int(uniform(1, self._level))) % self._level
                 _logger.debug('repeat=%d, n=%d' % (self._repeat, n))
                 self._dots[self._repeat].set_shape(self._new_dot_surface(
-                        image=self._dots[n].type))
+                    image=self._dots[n].type))
                 self._dots[self._repeat].type = self._dots[n].type
             else:  # Find repeated image, as that is the answer
                 self._repeat = self._find_repeat()
@@ -295,7 +292,7 @@ class Game():
     def _ask_the_question(self):
         ''' Each game has a challenge '''
         self._timeout_id = None
-        for i in range (3):
+        for i in range(3):
             self._opts[i].set_label('')
         # Hide the dots
         if self._game == 2:
@@ -307,7 +304,7 @@ class Game():
 
         if self._game == 0:
             text = []
-            text.append("¿")  
+            text.append("¿")
             text.append("    recall   ")
             text.append(" repeated ")
             text.append("   image   ")
@@ -316,7 +313,7 @@ class Game():
             for question_shape in self._question:
                 question_shape.type = -1
                 question_shape.set_shape(self._new_dot_surface(
-                            self._colors[2]))
+                    self._colors[2]))
                 question_shape.set_label(text[i])
                 question_shape.set_layer(100)
                 i += 1
@@ -324,12 +321,12 @@ class Game():
             for i in range(3):
                 n = int(uniform(0, len(self._PATHS)))
                 if self._level == 3:
-                    while(n == self._dots[self._repeat].type or \
+                    while(n == self._dots[self._repeat].type or
                           self._image_in_opts(n)):
                         n = int(uniform(0, len(self._PATHS)))
                 else:
-                    while(n == self._dots[self._repeat].type or \
-                          not self._image_in_dots(n) or \
+                    while(n == self._dots[self._repeat].type or
+                          not self._image_in_dots(n) or
                           self._image_in_opts(n)):
                         n = int(uniform(0, len(self._PATHS)))
                 self._opts[i].type = n
@@ -337,27 +334,28 @@ class Game():
             self._opts[self._answer].type = self._dots[self._repeat].type
             for i in range(3):
                 self._opts[i].set_shape(self._new_dot_surface(
-                        image=self._opts[i].type))
+                    image=self._opts[i].type))
                 self._opts[i].set_layer(100)
         elif self._game == 1:
-            text = []
-            text.append("¿")
-            text.append("    recall   ")
-            text.append(" not shown ")
-            text.append("   image   ")
-            text.append("?")
+            text = [
+                "¿",
+                "    recall   ",
+                " not shown ",
+                "   image   ",
+                "?"
+            ]
             i = 0
             for question_shape in self._question:
                 question_shape.type = -1
                 question_shape.set_shape(self._new_dot_surface(
-                            self._colors[2]))
+                    self._colors[2]))
                 question_shape.set_label(text[i])
                 question_shape.set_layer(100)
                 i += 1
             # Show the possible solutions
             for i in range(3):
                 n = int(uniform(0, len(self._PATHS)))
-                while(not self._image_in_dots(n) or \
+                while(not self._image_in_dots(n) or
                       self._image_in_opts(n)):
                     n = int(uniform(0, len(self._PATHS)))
                 self._opts[i].type = n
@@ -368,14 +366,14 @@ class Game():
             self._opts[self._answer].type = n
             for i in range(3):
                 self._opts[i].set_shape(self._new_dot_surface(
-                        image=self._opts[i].type))
+                    image=self._opts[i].type))
                 self._opts[i].set_layer(100)
         elif self._game == 3:
             self._set_label(_('Recall which image was not shown.'))
             # Show the possible solutions
             for i in range(3):
                 n = int(uniform(0, len(self._CPATHS)))
-                while(not self._image_in_dots(n) or \
+                while(not self._image_in_dots(n) or
                       self._image_in_opts(n)):
                     n = int(uniform(0, len(self._CPATHS)))
                 self._opts[i].type = n
@@ -386,27 +384,30 @@ class Game():
             self._opts[self._answer].type = n
             for i in range(3):
                 self._opts[i].set_shape(self._new_dot_surface(
-                        color_image=self._opts[i].type))
+                    color_image=self._opts[i].type))
                 self._opts[i].set_layer(100)
         elif self._game == 2:
-            text = []        
-            text.append("¿")
-            text.append("   what was ")
-            text.append(" displayed " + (str(int(self._level / 3))) + " ")
-            text.append(" time(s) ago  ")
-            text.append("?")
-            
+
+            text = [
+                "¿",
+                "   what was ",
+                " displayed " + (str(int(self._level / 3))) + " ",
+                " time(s) ago  ",
+                "?"
+            ]
+
             i = 0
             for question_shape in self._question:
                 question_shape.type = -1
                 question_shape.set_shape(self._new_dot_surface(
-                            self._colors[2]))
+                    self._colors[2]))
                 question_shape.set_label(text[i])
                 question_shape.set_layer(100)
                 i += 1
             # Show the possible solutions
             for i in range(3):
-                self._answer = len(self._recall_list) - int(self._level / 3) - 1
+                self._answer = len(self._recall_list) - \
+                    int(self._level / 3) - 1
                 n = int(uniform(0, len(self._recall_list)))
                 while n == self._answer:
                     n = int(uniform(0, len(self._recall_list)))
@@ -415,7 +416,7 @@ class Game():
             self._opts[i].type = self._recall_list[self._answer]
             for i in range(3):
                 self._opts[i].set_shape(self._new_dot_surface(
-                        image=self._opts[i].type))
+                    image=self._opts[i].type))
                 self._opts[i].set_layer(100)
         else:
             for question_shape in self._question:
@@ -454,7 +455,7 @@ class Game():
         x, y = list(map(int, event.get_coords()))
 
         spr = self._sprites.find_sprite((x, y), inverse=True)
-        if spr == None:
+        if spr is None:
             return
         current = self._correct
         if self._game in [0, 1, 3]:
@@ -462,7 +463,7 @@ class Game():
                 if self._opts[i] == spr:
                     break
             self._opts[i].set_shape(self._new_dot_surface(
-                    color=self._colors[0]))
+                color=self._colors[0]))
             if i == self._answer:
                 self._opts[i].set_label('☻')
                 self._correct += 1
@@ -475,7 +476,7 @@ class Game():
                 if self._opts[i] == spr:
                     break
             self._opts[i].set_shape(self._new_dot_surface(
-                    color=self._colors[0]))
+                color=self._colors[0]))
             if self._opts[i].type == self._recall_list[self._answer]:
                 self._opts[i].set_label('☻')
                 self._correct += 2
@@ -492,7 +493,7 @@ class Game():
                 question_shape.hide()
             for dot in self._dots:
                 dot.set_shape(self._new_dot_surface(
-                        image=self._recall_list[self._answer]))
+                    image=self._recall_list[self._answer]))
                 dot.set_layer(100)
 
         if self._correct > current:
@@ -500,7 +501,7 @@ class Game():
         else:
             self._timeout_id = GLib.timeout_add(2000, self._game_over)
         return True
-        
+
     def _game_over(self):
         for opt in self._opts:
             opt.hide()
@@ -511,76 +512,80 @@ class Game():
             question_shape.hide()
         self.save_highscore()
         yoffset = int(self._space / 4.)
-        xoffset = int((self._width - 6 * self._dot_size - \
-                                   5 * self._space) / 2.)
+        xoffset = int((self._width - 6 * self._dot_size -
+                       5 * self._space) / 2.)
         y = 1
-        i=0
-        for x in range(2,6):
+        i = 0
+        for x in range(2, 6):
             self._gameover.append(
                 Sprite(self._sprites,
-                    xoffset + (x-0.25) * (self._dot_size - 15),
-                    y * (self._dot_size - 90+ self._space) + yoffset,
-                    self._new_dot_surface(color=self._colors[1])))
+                       xoffset + (x - 0.25) * (self._dot_size - 15),
+                       y * (self._dot_size - 90 + self._space) + yoffset,
+                       self._new_dot_surface(color=self._colors[1])))
             self._gameover[-1].type = -1  # No image
             self._gameover[-1].set_label_attributes(72)
-            i+=1
-        text = []
-        text.append("☻")
-        text.append("  Game  ")
-        text.append("  Over  ")
-        text.append("☻")
+            i += 1
+        text = [
+            "☻",
+            "  Game  ",
+            "  Over  ",
+            "☻"
+        ]
         i = 0
-        for x in range(4) :
+        for x in range(4):
             self._gameover[x].type = -1
             self._gameover[x].set_shape(self._new_dot_surface(
-                        self._colors[2]))
+                self._colors[2]))
             self._gameover[x].set_label(text[i])
             self._gameover[x].set_layer(100)
             i += 1
         y = 2
-        for x in range(2,5):
+        for x in range(2, 5):
             self._score.append(
                 Sprite(self._sprites,
-                    xoffset + (x + 0.25) * (self._dot_size - 15),
-                    y * (self._dot_size -30 + self._space) + yoffset,
-                    self._new_dot_surface(color=self._colors[1])))
+                       xoffset + (x + 0.25) * (self._dot_size - 15),
+                       y * (self._dot_size - 30 + self._space) + yoffset,
+                       self._new_dot_surface(color=self._colors[1])))
             self._score[-1].type = -1  # No image
             self._score[-1].set_label_attributes(72)
-        text = []
-        text.append("  your  ")
-        text.append(" score:  ")
-        text.append("  " + str(self._correct) + "  ")
+        text = [
+            "  your  ",
+            " score:  ",
+            (f"  {self._correct}  ")
+        ]
         i = 0
         for x in range(3):
             self._score[x].type = -1
             self._score[x].set_shape(self._new_dot_surface(
-                        self._colors[2]))
+                self._colors[2]))
             self._score[x].set_label(text[i])
             self._score[x].set_layer(100)
             i += 1
-        y = 3   
-        if (self._correct > self._high_score_count):
+        y = 3
+        if self._correct > self._high_score_count:
             self._high_score_count = self._correct
-        for x in range(2,5):
+        for x in range(2, 5):
             self._highscore.append(
                 Sprite(self._sprites,
-                    xoffset + (x + 0.25) * (self._dot_size - 15),
-                    y * (self._dot_size -20+ self._space) + yoffset,
-                    self._new_dot_surface(color=self._colors[1])))
+                       xoffset + (x + 0.25) * (self._dot_size - 15),
+                       y * (self._dot_size - 20 + self._space) + yoffset,
+                       self._new_dot_surface(color=self._colors[1])))
             self._highscore[-1].type = -1  # No image
             self._highscore[-1].set_label_attributes(72)
-        text = []
-        text.append("  high  ")
-        text.append(" score:  ")
-        text.append("  " + str(self._high_score_count) + "  ")
+        text = [
+            "  high  ",
+            " score:  ",
+            (f"  {self._high_score_count}  ")
+        ]
         i = 0
         for x in range(3):
             self._highscore[x].type = -1
             self._highscore[x].set_shape(self._new_dot_surface(
-                        self._colors[2]))
+                self._colors[2]))
             self._highscore[x].set_label(text[i])
             self._highscore[x].set_layer(100)
             i += 1
+
     def _draw_cb(self, win, context):
         self.do_draw(win, context)
 
@@ -623,12 +628,12 @@ class Game():
             self._svg_width = self._dot_size
             self._svg_height = self._dot_size
 
-            i = self._colors.index(color)
+            # i = self._colors.index(color)
             pixbuf = svg_str_to_pixbuf(
-                self._header() + \
-                    self._circle(self._dot_size / 2., self._dot_size / 2.,
-                                 self._dot_size / 2.) + \
-                    self._footer())
+                self._header() +
+                self._circle(self._dot_size / 2., self._dot_size / 2.,
+                             self._dot_size / 2.) +
+                self._footer())
         surface = cairo.ImageSurface(cairo.FORMAT_ARGB32,
                                      self._svg_width, self._svg_height)
         context = cairo.Context(surface)
@@ -649,15 +654,15 @@ class Game():
             self._svg_width = 3
             self._svg_height = self._height
             return svg_str_to_pixbuf(
-                self._header() + \
-                self._rect(3, self._height, 0, 0) + \
+                self._header() +
+                self._rect(3, self._height, 0, 0) +
                 self._footer())
         else:
             self._svg_width = self._width
             self._svg_height = 3
             return svg_str_to_pixbuf(
-                self._header() + \
-                self._rect(self._width, 3, 0, 0) + \
+                self._header() +
+                self._rect(self._width, 3, 0, 0) +
                 self._footer())
 
     def _header(self):
@@ -687,35 +692,28 @@ class Game():
         return '</svg>\n'
 
     def save_highscore(self):
-        file_path = os.path.join(self._activity_root, 'data', 'highscore')
-        logging.debug(file_path)
-        highscore = []
-        highscore.append(0)
+        file_path = os.path.join(get_activity_root(), 'data', 'highscore')
+        highscore = [0]
         if os.path.exists(file_path):
-            File = open(file_path, "r")
-            highscore = File.readlines()
-            File.close()
+            with open(file_path, "r") as fp:
+                highscore = fp.readlines()
 
         int_highscore = int(highscore[0])
-        if not (int_highscore > self._correct):
-            File = open(file_path, "w")
-            File.write(str(self._correct))
-            File.close()
-
+        if not int_highscore > self._correct:
+            with open(file_path, "w") as fp:
+                fp.write(str(self._correct))
 
     def load_highscore(self):
-        file_path = os.path.join(self._activity_root, 'data', 'highscore')
-        logging.debug(file_path)
+        file_path = os.path.join(get_activity_root(), 'data', 'highscore')
         if os.path.exists(file_path):
             try:
-                File = open(file_path, "r")
-                highscore = int(File.readlines()[0])
-                File.close()
-                return highscore
-            except BaseException:
+                with open(file_path, "r") as fp:
+                    highscore = fp.readlines()
+                return int(highscore[0])
+            except ValueError and IndexError:
                 return 0
-        else:
-            return 0
+        return 0
+
 
 def svg_str_to_pixbuf(svg_string):
     """ Load pixbuf from SVG string """
@@ -724,4 +722,3 @@ def svg_str_to_pixbuf(svg_string):
     pl.close()
     pixbuf = pl.get_pixbuf()
     return pixbuf
-
