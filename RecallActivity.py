@@ -9,28 +9,24 @@
 # along with this library; if not, write to the Free Software
 # Foundation, 51 Franklin Street, Suite 500 Boston, MA 02110-1335 USA
 
-import gi
-gi.require_version('Gtk','3.0')
-from gi.repository import Gtk
-from gi.repository import Gdk
+from game import Game
+from sugar3.activity.widgets import StopButton
+from sugar3.activity.widgets import ActivityToolbarButton
+from sugar3.graphics.toolbarbox import ToolbarBox
 
-import logging
-from gettext import gettext as _
-
+from sugar3.activity import activity
+from sugar3 import profile
+from utils import json_load, json_dump
 from toolbar_utils import button_factory, radio_factory, label_factory, \
     separator_factory
-from utils import json_load, json_dump
-
-from sugar3 import profile
-from sugar3.activity import activity
-from sugar3.activity.activity import get_activity_root
-from sugar3.graphics.toolbarbox import ToolbarBox
-from sugar3.activity.widgets import ActivityToolbarButton
-from sugar3.activity.widgets import StopButton
-
-from game import Game
-
+from gettext import gettext as _
 import logging
+from gi.repository import Gdk
+from gi.repository import Gtk
+import gi
+gi.require_version('Gtk', '3.0')
+
+
 _logger = logging.getLogger('recall-activity')
 
 
@@ -59,13 +55,13 @@ class RecallActivity(activity.Activity):
 
         # Create a canvas
         canvas = Gtk.DrawingArea()
-        canvas.set_size_request(Gdk.Screen.width(), \
+        canvas.set_size_request(Gdk.Screen.width(),
                                 Gdk.Screen.height())
         self.set_canvas(canvas)
         canvas.show()
         self.show_all()
 
-        self._game = Game(canvas, get_activity_root(), parent=self, path=self.path,
+        self._game = Game(canvas, parent=self, path=self.path,
                           colors=self.colors)
         if 'dotlist' in self.metadata:
             self._restore()
