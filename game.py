@@ -694,7 +694,6 @@ class Game():
 
     def save_highscore(self):
         file_path = os.path.join(get_activity_root(), 'data', 'highscore')
-        logging.debug(file_path)
         highscore = [0]
         if os.path.exists(file_path):
             with open(file_path, "r") as fp:
@@ -725,4 +724,3 @@ def svg_str_to_pixbuf(svg_string):
     pl.close()
     pixbuf = pl.get_pixbuf()
     return pixbuf
-
