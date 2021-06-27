@@ -23,7 +23,6 @@ from utils import json_load, json_dump
 
 from sugar3 import profile
 from sugar3.activity import activity
-from sugar3.activity.activity import get_activity_root
 from sugar3.graphics.toolbarbox import ToolbarBox
 from sugar3.activity.widgets import ActivityToolbarButton
 from sugar3.activity.widgets import StopButton
@@ -65,7 +64,7 @@ class RecallActivity(activity.Activity):
         canvas.show()
         self.show_all()
 
-        self._game = Game(canvas, get_activity_root(), parent=self, path=self.path,
+        self._game = Game(canvas, parent=self, path=self.path,
                           colors=self.colors)
         if 'dotlist' in self.metadata:
             self._restore()

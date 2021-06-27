@@ -33,6 +33,7 @@ from gi.repository import GLib
 from gi.repository import GdkPixbuf
 
 from sugar3.graphics import style
+from sugar3.activity.activity import get_activity_root
 GRID_CELL_SIZE = style.GRID_CELL_SIZE
 
 DOT_SIZE = 40
@@ -52,9 +53,8 @@ def glob(path, end):
 
 class Game():
 
-    def __init__(self, canvas, get_activity_root, parent=None, path=None,
+    def __init__(self, canvas, parent=None, path=None,
                  colors=['#A0FFA0', '#FF8080']):
-        self._activity_root = get_activity_root
         self._canvas = canvas
         self._parent = parent
         self._parent.show_all()
@@ -130,9 +130,9 @@ class Game():
         for x in range(1,6):
             self._question.append(
                 Sprite(self._sprites,
-                    xoffset + (x ) * (self._dot_size - 2),
+                    xoffset + x * (self._dot_size - 2),
                     y * (self._dot_size - 120 + self._space) + yoffset,
-                    self._new_dot_surface(color=self._colors[2])))
+                    self._new_dot_surface(color = self._colors[2])))
             self._question[-1].type = -1  # No image
             self._question[-1].set_label_attributes(72)
             self._question[-1].hide()
@@ -198,7 +198,7 @@ class Game():
             self._correct = 0
             self._correct_for_level = 0
         if restart:
-            if ( self._correct < 10): 
+            if self._correct < 10: 
                 self._all_clear()
             else:
                 self._game_over()
@@ -295,7 +295,7 @@ class Game():
     def _ask_the_question(self):
         ''' Each game has a challenge '''
         self._timeout_id = None
-        for i in range (3):
+        for i in range(3):
             self._opts[i].set_label('')
         # Hide the dots
         if self._game == 2:
@@ -306,12 +306,13 @@ class Game():
                 self._dots[i].hide()
 
         if self._game == 0:
-            text = []
-            text.append("¿")  
-            text.append("    recall   ")
-            text.append(" repeated ")
-            text.append("   image   ")
-            text.append("?")
+            text = [
+                "¿",
+                "    recall   ",
+                " repeated ",
+                "   image   ",
+                "?"
+            ]
             i = 0
             for question_shape in self._question:
                 question_shape.type = -1
@@ -340,12 +341,13 @@ class Game():
                         image=self._opts[i].type))
                 self._opts[i].set_layer(100)
         elif self._game == 1:
-            text = []
-            text.append("¿")
-            text.append("    recall   ")
-            text.append(" not shown ")
-            text.append("   image   ")
-            text.append("?")
+            text = [
+                "¿",
+                "    recall   ",
+                " not shown ",
+                "   image   ",
+                "?"
+            ]
             i = 0
             for question_shape in self._question:
                 question_shape.type = -1
@@ -389,12 +391,13 @@ class Game():
                         color_image=self._opts[i].type))
                 self._opts[i].set_layer(100)
         elif self._game == 2:
-            text = []        
-            text.append("¿")
-            text.append("   what was ")
-            text.append(" displayed " + (str(int(self._level / 3))) + " ")
-            text.append(" time(s) ago  ")
-            text.append("?")
+            text = [
+                "¿",
+                "   what was ",
+                (f" displayed  {int(self._level / 3)} "),
+                "  time(s) ago  ",
+                "?"
+            ]
             
             i = 0
             for question_shape in self._question:
@@ -511,26 +514,27 @@ class Game():
             question_shape.hide()
         self.save_highscore()
         yoffset = int(self._space / 4.)
-        xoffset = int((self._width - 6 * self._dot_size - \
-                                   5 * self._space) / 2.)
+        xoffset = int((self._width - 6 * self._dot_size \
+                                   - 5 * self._space) / 2.)
         y = 1
-        i=0
+        i = 0
         for x in range(2,6):
             self._gameover.append(
                 Sprite(self._sprites,
-                    xoffset + (x-0.25) * (self._dot_size - 15),
-                    y * (self._dot_size - 90+ self._space) + yoffset,
-                    self._new_dot_surface(color=self._colors[1])))
+                    xoffset + (x - 0.25) * (self._dot_size - 15),
+                    y * (self._dot_size - 90 + self._space) + yoffset,
+                    self._new_dot_surface(color = self._colors[1])))
             self._gameover[-1].type = -1  # No image
             self._gameover[-1].set_label_attributes(72)
-            i+=1
-        text = []
-        text.append("☻")
-        text.append("  Game  ")
-        text.append("  Over  ")
-        text.append("☻")
+            i += 1
+        text = [
+             "☻",
+             "  Game  ",
+             "  Over  ",
+             "☻"
+        ]
         i = 0
-        for x in range(4) :
+        for x in range(4):
             self._gameover[x].type = -1
             self._gameover[x].set_shape(self._new_dot_surface(
                         self._colors[2]))
@@ -542,14 +546,15 @@ class Game():
             self._score.append(
                 Sprite(self._sprites,
                     xoffset + (x + 0.25) * (self._dot_size - 15),
-                    y * (self._dot_size -30 + self._space) + yoffset,
+                    y * (self._dot_size - 30 + self._space) + yoffset,
                     self._new_dot_surface(color=self._colors[1])))
             self._score[-1].type = -1  # No image
             self._score[-1].set_label_attributes(72)
-        text = []
-        text.append("  your  ")
-        text.append(" score:  ")
-        text.append("  " + str(self._correct) + "  ")
+        text = [
+             "  your  ",
+             " score:  ",
+             (f"  {self._correct}  ")
+        ]
         i = 0
         for x in range(3):
             self._score[x].type = -1
@@ -559,20 +564,21 @@ class Game():
             self._score[x].set_layer(100)
             i += 1
         y = 3   
-        if (self._correct > self._high_score_count):
+        if self._correct > self._high_score_count:
             self._high_score_count = self._correct
         for x in range(2,5):
             self._highscore.append(
                 Sprite(self._sprites,
                     xoffset + (x + 0.25) * (self._dot_size - 15),
-                    y * (self._dot_size -20+ self._space) + yoffset,
-                    self._new_dot_surface(color=self._colors[1])))
+                    y * (self._dot_size - 20 + self._space) + yoffset,
+                    self._new_dot_surface(color = self._colors[1])))
             self._highscore[-1].type = -1  # No image
             self._highscore[-1].set_label_attributes(72)
-        text = []
-        text.append("  high  ")
-        text.append(" score:  ")
-        text.append("  " + str(self._high_score_count) + "  ")
+        text = [
+             "  high  ",
+             " score:  ",
+             (f"  {self._high_score_count}  ")
+        ]
         i = 0
         for x in range(3):
             self._highscore[x].type = -1
@@ -687,35 +693,30 @@ class Game():
         return '</svg>\n'
 
     def save_highscore(self):
-        file_path = os.path.join(self._activity_root, 'data', 'highscore')
+        file_path = os.path.join(get_activity_root(), 'data', 'highscore')
         logging.debug(file_path)
-        highscore = []
-        highscore.append(0)
+        highscore = [0]
         if os.path.exists(file_path):
-            File = open(file_path, "r")
-            highscore = File.readlines()
-            File.close()
+            with open(file_path, "r") as fp:
+                highscore = fp.readlines()
 
         int_highscore = int(highscore[0])
-        if not (int_highscore > self._correct):
-            File = open(file_path, "w")
-            File.write(str(self._correct))
-            File.close()
+        if not int_highscore > self._correct:
+            with open(file_path, "w") as fp:
+                fp.write(str(self._correct))
 
 
     def load_highscore(self):
-        file_path = os.path.join(self._activity_root, 'data', 'highscore')
+        file_path = os.path.join(get_activity_root(), 'data', 'highscore')
         logging.debug(file_path)
         if os.path.exists(file_path):
             try:
-                File = open(file_path, "r")
-                highscore = int(File.readlines()[0])
-                File.close()
-                return highscore
-            except BaseException:
+                with open(file_path, "r") as fp:
+                    highscore = fp.readlines()
+                return int(highscore[0])
+            except ValueError and IndexError:
                 return 0
-        else:
-            return 0
+        return 0
 
 def svg_str_to_pixbuf(svg_string):
     """ Load pixbuf from SVG string """
