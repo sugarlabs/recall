@@ -99,10 +99,11 @@ class Game():
         self._highscore = []
         yoffset = int(self._space / 2.)
 
-        self._line = Sprite(
-            self._sprites, 0,
-            int(3 * (self._dot_size + self._space) + yoffset / 2.),
-            self._line(vertical=False))
+        # This seems unneessary.
+        # self._line = Sprite(
+        #     self._sprites, 0,
+        #     int(3 * (self._dot_size + self._space) + yoffset / 2.),
+        #     self._line(vertical=False))
 
         for y in range(3):
             for x in range(6):
@@ -456,7 +457,7 @@ class Game():
         win.grab_focus()
         x, y = list(map(int, event.get_coords()))
 
-        spr = self._sprites.find_sprite((x, y), inverse=True)
+        spr = self._sprites.find_sprite((x, y))
         if spr == None:
             return
         current = self._correct
