@@ -494,7 +494,7 @@ class Game():
                                    - 5 * self._space) / 2.)
         y = 1
         i = 0
-        for x in range(2,6):
+        for x in range(2, 6):
             self._gameover.append(
                 Sprite(self._sprites,
                     xoffset + (x - 0.25) * (self._dot_size - 15),
