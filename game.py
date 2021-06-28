@@ -214,21 +214,14 @@ class Game():
 
     def _choose_random_images(self):
         ''' Choose images at random '''
-        if self._game == 3:
-            maxi = len(self._CPATHS)
-        else:
-            maxi = len(self._PATHS)
+        maxi = len(self._PATHS)
         for i in range(self._level):
             if self._dots[i].type == -1:
                 n = int(uniform(0, maxi))
                 while self._image_in_dots(n):
                     n = int(uniform(0, maxi))
                 self._dots[i].type = n
-            if self._game == 3:
-                self._dots[i].set_shape(self._new_dot_surface(
-                    color_image=self._dots[i].type))
-            else:
-                self._dots[i].set_shape(self._new_dot_surface(
+            self._dots[i].set_shape(self._new_dot_surface(
                     image=self._dots[i].type))
             self._dots[i].set_layer(100)
             self._dots[i].set_label('')
@@ -257,7 +250,7 @@ class Game():
 
     def _new_game(self, restore=False):
         ''' Load game images and then ask a question... '''
-        if self._game in [0, 1, 3]:
+        if self._game in [0, 1]:
             self._choose_random_images()
         else:  # game 2
             # generate a random list
@@ -285,7 +278,7 @@ class Game():
                     _logger.debug('could not find repeat')
                     self._repeat = 0
 
-        if self._game in [0, 1, 3]:
+        if self._game in [0, 1]:
             self._timeout_id = GLib.timeout_add(
                 3000, self._ask_the_question)
 
@@ -368,24 +361,6 @@ class Game():
                 self._opts[i].set_shape(self._new_dot_surface(
                     image=self._opts[i].type))
                 self._opts[i].set_layer(100)
-        elif self._game == 3:
-            self._set_label(_('Recall which image was not shown.'))
-            # Show the possible solutions
-            for i in range(3):
-                n = int(uniform(0, len(self._CPATHS)))
-                while(not self._image_in_dots(n) or
-                      self._image_in_opts(n)):
-                    n = int(uniform(0, len(self._CPATHS)))
-                self._opts[i].type = n
-            self._answer = int(uniform(0, 3))
-            n = int(uniform(0, len(self._CPATHS)))
-            while(self._image_in_dots(n)):
-                n = int(uniform(0, len(self._CPATHS)))
-            self._opts[self._answer].type = n
-            for i in range(3):
-                self._opts[i].set_shape(self._new_dot_surface(
-                    color_image=self._opts[i].type))
-                self._opts[i].set_layer(100)
         elif self._game == 2:
             text = [
                 "¿",
@@ -457,7 +432,7 @@ class Game():
         if spr == None:
             return
         current = self._correct
-        if self._game in [0, 1, 3]:
+        if self._game in [0, 1]:
             for i in range(3):
                 if self._opts[i] == spr:
                     break
@@ -484,7 +459,7 @@ class Game():
                 self._opts[i].set_label('☹')
                 self._correct_for_level = 0
 
-        if self._game in [0, 1, 3]:
+        if self._game in [0, 1]:
             for i in range(self._level):
                 self._dots[i].set_layer(100)
         else:
