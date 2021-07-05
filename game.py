@@ -689,7 +689,7 @@ class Game():
                 with open(file_path, "r") as fp:
                     highscore = fp.readlines()
                 return int(highscore[0])
-            except ValueError and IndexError:
+            except ValueError or IndexError:
                 return 0
         return 0
 
