@@ -151,8 +151,8 @@ class Game():
         self._set_label('')
         for question_shape in self._question:
             question_shape.hide()
-        for gamevoer_shape in self._gameover:
-            gamevoer_shape.hide()
+        for gameover_shape in self._gameover:
+            gameover_shape.hide()
         for score_shape in self._score:
             score_shape.hide()
         for highscore_shape in self._highscore:
