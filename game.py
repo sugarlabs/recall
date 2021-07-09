@@ -559,6 +559,8 @@ class Game():
             self._highscore[x].set_label(text[i])
             self._highscore[x].set_layer(100)
             i += 1
+        self._correct = 0
+        self._timeout_id = GLib.timeout_add(5000, self.new_game)
 
     def _draw_cb(self, win, context):
         self.do_draw(win, context)
