@@ -99,12 +99,6 @@ class Game():
         self._highscore = []
         yoffset = int(self._space / 2.)
 
-        # This seems unneessary.
-        # self._line = Sprite(
-        #     self._sprites, 0,
-        #     int(3 * (self._dot_size + self._space) + yoffset / 2.),
-        #     self._line(vertical=False))
-
         for y in range(3):
             for x in range(6):
                 xoffset = int((self._width - 6 * self._dot_size - \
@@ -128,7 +122,7 @@ class Game():
             self._opts[-1].set_label_attributes(72)
             self._opts[-1].hide()
 
-        for x in range(1,6):
+        for x in range(1, 6):
             self._question.append(
                 Sprite(self._sprites,
                     xoffset + x * (self._dot_size - 2),
@@ -479,7 +473,7 @@ class Game():
         else:
             self._timeout_id = GLib.timeout_add(2000, self._game_over)
         return True
-        
+       
     def _game_over(self):
         for opt in self._opts:
             opt.hide()
@@ -509,16 +503,9 @@ class Game():
              "  Over  ",
              "☻"
         ]
-        i = 0
-        for x in range(4):
-            self._gameover[x].type = -1
-            self._gameover[x].set_shape(self._new_dot_surface(
-                        self._colors[2]))
-            self._gameover[x].set_label(text[i])
-            self._gameover[x].set_layer(100)
-            i += 1
+        self.rings(len(text), text, self._gameover)
         y = 2
-        for x in range(2,5):
+        for x in range(2, 5):
             self._score.append(
                 Sprite(self._sprites,
                     xoffset + (x + 0.25) * (self._dot_size - 15),
@@ -531,18 +518,11 @@ class Game():
              " score:  ",
              (f"  {self._correct}  ")
         ]
-        i = 0
-        for x in range(3):
-            self._score[x].type = -1
-            self._score[x].set_shape(self._new_dot_surface(
-                        self._colors[2]))
-            self._score[x].set_label(text[i])
-            self._score[x].set_layer(100)
-            i += 1
+        self.rings(len(text), text, self._score)
         y = 3   
         if self._correct > self._high_score_count:
             self._high_score_count = self._correct
-        for x in range(2,5):
+        for x in range(2, 5):
             self._highscore.append(
                 Sprite(self._sprites,
                     xoffset + (x + 0.25) * (self._dot_size - 15),
@@ -555,16 +535,19 @@ class Game():
              " score:  ",
              (f"  {self._high_score_count}  ")
         ]
-        i = 0
-        for x in range(3):
-            self._highscore[x].type = -1
-            self._highscore[x].set_shape(self._new_dot_surface(
-                        self._colors[2]))
-            self._highscore[x].set_label(text[i])
-            self._highscore[x].set_layer(100)
-            i += 1
+        self.rings(len(text), text, self._highscore)
         self._correct = 0
         self._timeout_id = GLib.timeout_add(5000, self.new_game)
+        
+    def rings(self, num, text, shape):
+        i = 0
+        for x in range(num):
+            shape[x].type = -1
+            shape[x].set_shape(self._new_dot_surface(
+                        self._colors[2]))
+            shape[x].set_label(text[i])
+            shape[x].set_layer(100)
+            i += 1 
 
     def _draw_cb(self, win, context):
         self.do_draw(win, context)
