@@ -17,7 +17,9 @@ The first game prompts the learner to observe which images are repeated in the g
 The second game prompts the user to identify the image which had not appeared in the grid. Again, it starts easy, with just three images to remember, but gets very challenging as the number of images increases.
 The third game (an "n-back"-style game) shows images in sequence and prompts the learner to recall which image came earlier. First is asked for the image that was present just previously; then two-previously,... up to six previously.
 <img src="screenshots/en/4.png" width="75%" title="Recall Activity">
-<img src="screenshots/en/5.png" width="75%" title="Recall Activity">
+<img src="screenshots/en/6.png" width="75%" title="Recall Activity">
+Each games contains 10 questions. After completing a game, the current score and the high score will be displayed.
+<img src="screenshots/en/7.png" width="75%" title="Recall Activity">
 
 How to upgrade?
 ===============
