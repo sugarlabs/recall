@@ -1,3 +1,13 @@
+8
+ 
+* Updated screenshots (Sourabha G),
+* Updated README.md (Sourabha G),
+* fix PyGIWarning (Sourabha G),
+* Automtic restart of previous game (Sourabha G), 
+* Updated sprites.py (Sourabha G),
+* Added Gameover page (Sourabha G),
+* UI Enhancement - Instruction relocated to center of the screen (Sourabha G)
+
 7
 
 * Fix vertical Tollbar expansion (Jui Pradhan),
