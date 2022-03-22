@@ -9,6 +9,12 @@
 # along with this library; if not, write to the Free Software
 # Foundation, 51 Franklin Street, Suite 500 Boston, MA 02110-1335 USA
 
+import gi
+gi.require_version('Gdk', '3.0')
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+from gi.repository import Gdk
+
 from game import Game
 from sugar3.activity.widgets import StopButton
 from sugar3.activity.widgets import ActivityToolbarButton
@@ -21,10 +27,6 @@ from toolbar_utils import button_factory, radio_factory, label_factory, \
     separator_factory
 from gettext import gettext as _
 import logging
-from gi.repository import Gdk
-from gi.repository import Gtk
-import gi
-gi.require_version('Gtk', '3.0')
 
 
 _logger = logging.getLogger('recall-activity')
